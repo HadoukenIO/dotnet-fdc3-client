@@ -1,5 +1,8 @@
 ﻿using OpenFin.FDC3.Channels;
-using System;
+using OpenFin.FDC3.Constants;
+using OpenFin.FDC3.Utils;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace OpenFin.FDC3
@@ -7,51 +10,45 @@ namespace OpenFin.FDC3
     public sealed class ContextChannels
     {
         private static readonly ContextChannels _instance = new ContextChannels();
+        private static Dictionary<string, ChannelBase> channelLookup = new Dictionary<string, ChannelBase>();
 
-        private ContextChannels() { }
+        internal static ContextChannels Instance => _instance;
 
-        public static ContextChannels Instance => _instance;        
-       
-        /// <summary>
-        /// Adds handler to respond to events when a window changes from one channel to another
-        /// </summary>
-        /// <param name="handler">The handler</param>
-        public void AddChannelChangedEventListener(Action<ChannelChangedPayload> handler)
+        private ContextChannels()
         {
-            Connection.AddChannelChangedEventListener(handler);
+            channelLookup = new Dictionary<string, ChannelBase>();
+            channelLookup[ChannelConstants.DefaultChannelId] = ChannelUtils.DefaultChannel;
         }
 
-        /// <summary>
-        /// Retrieves all available context channels
-        /// </summary>
-        /// <returns></returns>
-        public Task<Channel[]> GetAllChannelsAsync()
+        public async static Task<IEnumerable<DesktopChannel>> GetDesktopChannelsAsync()
         {
-            return Connection.GetAllChannels();
+            var channels = await Connection.GetDesktopChannelsAsync();
+            return channels;
         }
 
-        public Task<Channel> GetChannelAsync(Identity identity = null)
+        public async static Task<ChannelBase> GetChannelByIdAsync(string channelId)
         {
-            return Connection.GetChannelAsync(identity);
+            var transport = await Connection.GetChannelByIdAsync(channelId);
+
+            if (channelLookup.Any(x => x.Key == channelId))
+                return channelLookup[channelId];
+
+            channelLookup[channelId] = ChannelUtils.GetChannelObject(transport);
+
+            return channelLookup[channelId];
         }
 
-        public Task<Identity[]> GetChannelMembersAsync(string channelId)
+        public async static Task<ChannelBase> GetCurrentChannelAsync(Identity identity)
         {
-            return Connection.GetChannelMembersAsync(channelId);
-        }
+            var channel = await Connection.GetCurrentChannelAsync(identity);
+            var channelId = channel.ChannelId;
 
-        public Task JoinChannelAsync(string channelId, Identity identity = null)
-        {
-            return Connection.JoinChannelAsync(channelId, identity);
-        }
+            if (channelLookup.Any(x => x.Key == channelId))
+                return channelLookup[channelId];
 
-        /// <summary>
-        /// Removed handler that responds to events when a window changes from cone channel to another
-        /// </summary>
-        /// <param name="handler">The handler</param>
-        public void RemoveChannelChangedEventListener(Action<ChannelChangedPayload> handler)
-        {
-            Connection.RemoveChannelChangedEventListener(handler);
+            channelLookup[channelId] = channel;
+
+            return channel;
         }
     }
 }

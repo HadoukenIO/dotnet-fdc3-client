@@ -1,28 +1,21 @@
-﻿using System;
+﻿using OpenFin.FDC3.Channels;
+using OpenFin.FDC3.Context;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using OpenFin.FDC3.Context;
-using FDC3 = OpenFin.FDC3;
 
 namespace OpenFin.FDC3.Demo
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class MainWindow : System.Windows.Window
     {
-        bool contextChanging = false;
+        private bool contextChanging = false;
+        private string nameAlias = "";
+        private Identity windowIdentity = new Identity { Name = "fdc3-service", Uuid = "fdc3-Service" };
 
         public MainWindow()
         {
@@ -34,13 +27,37 @@ namespace OpenFin.FDC3.Demo
 
         private async void DesktopAgent_Initialized(Exception ex)
         {
-            var channels = await FDC3.ContextChannels.Instance.GetAllChannelsAsync();
+            //FDC3.DesktopAgent.runtimeInstance.DesktopConnection.sendAction("get-all-external-windows", null,
+            //    ack =>
+            //    {
+            //        var obj = ack.getJsonObject();
+
+            //        foreach(var item in obj["data"])
+            //        {
+            //            if (item["name"].ToString() == "OpenFin.FDC3.Demo")
+            //            {
+            //                windowIdentity.Uuid =  "";
+            //                break;
+            //            }
+            //        }
+            //        Console.WriteLine(obj);
+            //    },
+            //    nack =>
+            //    {
+            //        Console.WriteLine("blah");
+            //    }, null);
+
+            var channels = await FDC3.ContextChannels.GetDesktopChannelsAsync();
+            windowIdentity.Name = windowIdentity.Uuid = FDC3.DesktopAgent.runtimeInstance.Options.UUID;
 
             Dispatcher.Invoke(() =>
             {
                 foreach (var channel in channels)
                 {
-                    ChannelListComboBox.Items.Add(new ComboBoxItem() { Content = channel.Name, Tag = channel });
+                    if (channel.ChannelType == ChannelTypes.Desktop)
+                    {
+                        ChannelListComboBox.Items.Add(new ComboBoxItem() { Content = channel.Name, Tag = channel });
+                    }
                 }
 
                 ChannelListComboBox.SelectedValue = "Global";
@@ -61,7 +78,7 @@ namespace OpenFin.FDC3.Demo
 
         private async void TickerComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if(!contextChanging)
+            if (!contextChanging)
             {
                 var newTicker = TickerComboBox.SelectedValue as string;
                 var context = new SecurityContext()
@@ -86,12 +103,12 @@ namespace OpenFin.FDC3.Demo
 
         private async void ChannelListComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            var newChannel = (ChannelListComboBox.SelectedItem as ComboBoxItem).Tag as Channels.Channel;
+            var newChannel = (ChannelListComboBox.SelectedItem as ComboBoxItem).Tag as DesktopChannel;
 
             var newColor = Color.FromRgb(
-                (byte) (newChannel.Color >> 16),
-                (byte) ((newChannel.Color >> 8) & 0xFF),
-                (byte) (newChannel.Color & 0xFF));
+                (byte)(newChannel.Color >> 16),
+                (byte)((newChannel.Color >> 8) & 0xFF),
+                (byte)(newChannel.Color & 0xFF));
 
             Dispatcher.Invoke(() =>
             {
@@ -100,11 +117,11 @@ namespace OpenFin.FDC3.Demo
 
             try
             {
-                await FDC3.ContextChannels.Instance.JoinChannelAsync(newChannel.Id);
+                await newChannel.JoinAsync();
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                Console.WriteLine(ex);
+                MessageBox.Show(ex.ToString());
             }
         }
     }

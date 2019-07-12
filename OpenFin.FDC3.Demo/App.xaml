@@ -4,6 +4,5 @@
              xmlns:local="clr-namespace:OpenFin.FDC3.Demo"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
-         
     </Application.Resources>
 </Application>

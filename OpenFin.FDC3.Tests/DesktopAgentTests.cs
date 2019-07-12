@@ -1,10 +1,6 @@
-﻿using FakeItEasy;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using OpenFin.FDC3.Constants;
-using OpenFin.FDC3.Context;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OpenFin.FDC3.Exceptions;
 using System;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace OpenFin.FDC3.Tests
@@ -12,7 +8,8 @@ namespace OpenFin.FDC3.Tests
     [TestClass]
     public class DesktopAgentTests
     {
-        object locker = new object();
+        private object locker = new object();
+
         [TestMethod]
         public async Task FindIntentAsync_SearchingForNonExistentIntentReturnsZeroApplications()
         {
@@ -22,7 +19,7 @@ namespace OpenFin.FDC3.Tests
             Assert.IsTrue(intent.Apps.Length == 0);
             Assert.AreEqual("fakeintent", intent.Intent.Name);
             Assert.AreEqual("fakeintent", intent.Intent.DisplayName);
-        }  
+        }
 
         [TestMethod]
         public void Initialize_CallingInitializeBeforeSettingCompleteHandler_ThrowsException()
@@ -42,7 +39,6 @@ namespace OpenFin.FDC3.Tests
             init();
             await Assert.ThrowsExceptionAsync<Exception>(async () =>
             {
-
                 try
                 {
                     await DesktopAgent.OpenAsync("test-app-1");
@@ -99,7 +95,7 @@ namespace OpenFin.FDC3.Tests
                     throw ex;
                 }
             });
-        }       
+        }
 
         private void init()
         {

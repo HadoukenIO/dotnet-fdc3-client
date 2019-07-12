@@ -1,7 +1,7 @@
-﻿using System.Collections.Generic;
-using System.Reflection;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
-using System;
+using System.Reflection;
 
 namespace OpenFin.FDC3.Context
 {
@@ -11,11 +11,12 @@ namespace OpenFin.FDC3.Context
         private static Dictionary<string, List<PropertyInfo>> properties;
         public virtual string Type { get; }
         public string Name { get; set; }
-        public Dictionary<string, string> Id { get; set; }        
+        public Dictionary<string, string> Id { get; set; }
+
         public object this[string propertyName]
         {
-            get {
-
+            get
+            {
                 var prop = getPropertyInfoByPropertyName(propertyName);
 
                 if (prop == null)
@@ -33,9 +34,9 @@ namespace OpenFin.FDC3.Context
                     {
                         prop.SetValue(this, value);
                     }
-                    catch(Exception ex)
-                    { 
-                        if(ex.Message == "Property set method not found.")
+                    catch (Exception ex)
+                    {
+                        if (ex.Message == "Property set method not found.")
                         {
                             throw new ArgumentException("Assignment to read-only properties is not allowed. Check the object definition and/or its base class for a property with this key name and ensure it is not a read-only property.");
                         }
@@ -50,7 +51,7 @@ namespace OpenFin.FDC3.Context
 
         public ContextBase()
         {
-            if(customProps == null)
+            if (customProps == null)
                 customProps = new Dictionary<string, object>();
 
             if (properties == null)

@@ -1,12 +1,8 @@
-﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
-
-namespace OpenFin.FDC3.Channels
+﻿namespace OpenFin.FDC3.Channels
 {
-    [JsonConverter(typeof(StringEnumConverter))]
-    public enum ChannelType
+    public static class ChannelTypes
     {
-        Global = 0,
-        User
+        public const string Default = "default";
+        public const string Desktop = "desktop";
     }
 }

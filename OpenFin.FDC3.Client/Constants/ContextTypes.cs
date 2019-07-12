@@ -2,8 +2,8 @@
 {
     internal static class ContextTypes
     {
-        internal static string Security     = "security";
+        internal static string Security = "security";
         internal static string Organization = "organization";
-        internal static string Contact      = "context";
+        internal static string Contact = "context";
     }
 }

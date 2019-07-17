@@ -13,57 +13,40 @@ namespace OpenFin.FDC3.Demo
     /// </summary>
     public partial class MainWindow : System.Windows.Window
     {
-        private bool contextChanging = false;
-        private string nameAlias = "";
-        private Identity windowIdentity = new Identity { Name = "fdc3-service", Uuid = "fdc3-Service" };
+        private bool contextChanging = false;        
+        private DefaultChannel defaultChannel = new DefaultChannel();
 
         public MainWindow()
         {
             InitializeComponent();
 
             FDC3.DesktopAgent.InitializationComplete = DesktopAgent_Initialized;
-            FDC3.DesktopAgent.Initialize();
+            FDC3.DesktopAgent.Initialize();            
         }
 
         private async void DesktopAgent_Initialized(Exception ex)
-        {
-            //FDC3.DesktopAgent.runtimeInstance.DesktopConnection.sendAction("get-all-external-windows", null,
-            //    ack =>
-            //    {
-            //        var obj = ack.getJsonObject();
-
-            //        foreach(var item in obj["data"])
-            //        {
-            //            if (item["name"].ToString() == "OpenFin.FDC3.Demo")
-            //            {
-            //                windowIdentity.Uuid =  "";
-            //                break;
-            //            }
-            //        }
-            //        Console.WriteLine(obj);
-            //    },
-            //    nack =>
-            //    {
-            //        Console.WriteLine("blah");
-            //    }, null);
-
+        {            
             var channels = await FDC3.ContextChannels.GetDesktopChannelsAsync();
-            windowIdentity.Name = windowIdentity.Uuid = FDC3.DesktopAgent.runtimeInstance.Options.UUID;
 
-            Dispatcher.Invoke(() =>
+            FDC3.DesktopAgent.AddContextHandler(ContextChanged);
+
+            await Dispatcher.InvokeAsync(async () =>
             {
+                tbAppId.Text = FDC3.DesktopAgent.Uuid;
                 foreach (var channel in channels)
                 {
-                    if (channel.ChannelType == ChannelTypes.Desktop)
+                    if (channel.ChannelType == ChannelType.Desktop)
                     {
                         ChannelListComboBox.Items.Add(new ComboBoxItem() { Content = channel.Name, Tag = channel });
                     }
                 }
 
                 ChannelListComboBox.SelectedValue = "Global";
+                await defaultChannel.JoinAsync();
+                await defaultChannel.AddContextListenerAsync(ContextChanged);
             });
 
-            FDC3.DesktopAgent.AddContextListener(ContextChanged);
+            FDC3.DesktopAgent.AddContextHandler(ContextChanged);
         }
 
         private void ContextChanged(ContextBase obj)
@@ -92,18 +75,25 @@ namespace OpenFin.FDC3.Demo
 
                 try
                 {
-                    await FDC3.DesktopAgent.Broadcast(context);
+                    if (newChannel != null)
+                        await newChannel.BroadcastAsync(context);
+                    else
+                        await defaultChannel.BroadcastAsync(context);
+
+                    await FDC3.DesktopAgent.BroadcastAsync(context);
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine(ex);
+                    MessageBox.Show(ex.ToString());
                 }
             }
         }
 
+        DesktopChannel newChannel; 
+
         private async void ChannelListComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            var newChannel = (ChannelListComboBox.SelectedItem as ComboBoxItem).Tag as DesktopChannel;
+            newChannel = (ChannelListComboBox.SelectedItem as ComboBoxItem).Tag as DesktopChannel;
 
             var newColor = Color.FromRgb(
                 (byte)(newChannel.Color >> 16),
@@ -116,8 +106,9 @@ namespace OpenFin.FDC3.Demo
             });
 
             try
-            {
+            {                
                 await newChannel.JoinAsync();
+                
             }
             catch (Exception ex)
             {

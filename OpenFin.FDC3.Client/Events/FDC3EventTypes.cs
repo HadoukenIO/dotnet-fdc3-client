@@ -1,18 +1,19 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
+using System.Runtime.Serialization;
 
 namespace OpenFin.FDC3.Events
 {
     [JsonConverter(typeof(StringEnumConverter))]
     public enum FDC3EventType
     {
-        [JsonProperty("channel-changed")]
+        [EnumMember(Value = "channel-changed")]
         ChannelChanged,
 
-        [JsonProperty("window-added")]
+        [EnumMember(Value = "window-added")]
         WindowAdded,
 
-        [JsonProperty("window-removed")]
+        [EnumMember(Value = "window-removed")]
         WindowRemoved
     }
 }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -9,8 +10,14 @@ namespace OpenFin.FDC3.Context
     {
         private static Dictionary<string, object> customProps;
         private static Dictionary<string, List<PropertyInfo>> properties;
+
+        [JsonProperty("type")]
         public virtual string Type { get; }
+
+        [JsonProperty("name")]
         public string Name { get; set; }
+
+        [JsonProperty("id")]
         public Dictionary<string, string> Id { get; set; }
 
         public object this[string propertyName]

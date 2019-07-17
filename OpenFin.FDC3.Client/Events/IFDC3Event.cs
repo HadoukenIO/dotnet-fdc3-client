@@ -20,5 +20,12 @@ namespace OpenFin.FDC3.Events
         /// The previous channel the window belongs to
         /// </summary>
         public ChannelBase PreviousChannel { get; set; }
+
+        public FDC3Event(Identity identity, ChannelBase channel, ChannelBase previousChannel)
+        {
+            Identity        = identity;
+            Channel         = channel;
+            PreviousChannel = previousChannel;
+        }
     }
 }

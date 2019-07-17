@@ -1,11 +1,14 @@
 ﻿using Openfin.Desktop;
 using OpenFin.FDC3.Constants;
 using OpenFin.FDC3.Context;
+using OpenFin.FDC3.Events;
 using OpenFin.FDC3.Exceptions;
+using OpenFin.FDC3.Handlers;
 using OpenFin.FDC3.Intents;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.Linq;
 
 namespace OpenFin.FDC3
 {
@@ -18,10 +21,11 @@ namespace OpenFin.FDC3
         /// </summary>
         public static Action<Exception> InitializationComplete;
 
-        public static Runtime runtimeInstance;
+        private static Runtime runtimeInstance;
+        public static string Uuid => runtimeInstance.Options.UUID;
         private static bool isInitialized = false;
 
-        internal static Dictionary<string, Action<ContextBase>> IntentListeners;
+        //internal static Dictionary<string, Action<ContextBase>> IntentListeners;
 
         static DesktopAgent()
         {
@@ -39,15 +43,24 @@ namespace OpenFin.FDC3
 
                 return ContextChannels.Instance;
             }
-        }
+        }     
 
         /// <summary>
         /// Adds a listener for incoming context broadcast from the Desktop Agent.
         /// </summary>
         /// <param name="handler">The handler to invoke when </param>
-        public static void AddContextListener(Action<ContextBase> listener)
+        public static void AddContextHandler(Action<ContextBase> handler)
         {
-            Connection.AddContextListener(listener);
+            FDC3Handlers.ContextHandlers += handler;            
+        }
+
+        /// <summary>
+        /// Removed context broadcast listener
+        /// </summary>
+        /// <param name="handler">Handler to be removed</param>
+        internal static void RemoveContextHandler(Action<ContextBase> handler)
+        {
+            FDC3Handlers.ContextHandlers -= handler;
         }
 
         /// <summary>
@@ -55,24 +68,27 @@ namespace OpenFin.FDC3
         /// </summary>
         /// <param name="intent">The intent to listen for</param>
         /// <param name="handler">The handler to be called when an intent in received</param>
-        public static Task AddIntentListener(string intent, Action<Context.ContextBase> handler)
+        public static Task AddIntentListenerAsync(string intent, Action<ContextBase> handler)
         {
-            foreach (var key in IntentListeners.Keys)
-            {
-                Action<ContextBase> action;
+            var hasIntent = FDC3Handlers.HasIntentHandler(intent);
 
-                if (IntentListeners.TryGetValue(key, out action))
-                {
-                    IntentListeners[intent] += handler;
-                    break;
-                }
-                else
-                {
-                    IntentListeners.Add(intent, handler);
-                }
+            if(FDC3Handlers.IntentHandlers.Any(x => x.Key == intent))
+            {
+                FDC3Handlers.IntentHandlers[intent] += handler;
+            }
+            else
+            {
+                FDC3Handlers.IntentHandlers.Add(intent, handler);
             }
 
-            return Connection.AddIntentHandlerAsync(intent);
+            if(!hasIntent)
+            {
+                return Connection.AddIntentHandlerAsync(intent);
+            }
+            else
+            {
+                return Task.FromResult<object>(null);
+            }            
         }
 
         /// <summary>
@@ -80,7 +96,7 @@ namespace OpenFin.FDC3
         /// </summary>
         /// <param name="context">The context to publish to other applications</param>
         /// <returns></returns>
-        public static Task Broadcast(ContextBase context)
+        public static Task BroadcastAsync(ContextBase context)
         {
             return Connection.BroadcastAsync(context);
         }
@@ -124,26 +140,34 @@ namespace OpenFin.FDC3
             if (InitializationComplete == null)
                 throw new OpenFinInitializationException("InitializationComplete action delegate must be set before calling Initialize.");
 
+#if DEBUG
+
+            var runtimeOptions = RuntimeOptions.LoadManifest(System.IO.Directory.GetCurrentDirectory() + "\\app.json");
+#else
             var runtimeOptions = RuntimeOptions.LoadManifest(manifestUri);
+            #endif
             runtimeInstance = Runtime.GetRuntimeInstance(runtimeOptions);
             runtimeInstance.Options.RuntimeConnectTimeout = -1;
-            runtimeInstance.Options.Version = "12.69.43.12";
+            //runtimeInstance.Options.Version = "12.69.43.12";
 
             runtimeInstance.Connect(() =>
             {
                 var fdcService = runtimeInstance.CreateApplication(runtimeOptions.StartupApplicationOptions);
-
+                
                 fdcService.isRunning(ack =>
                 {
                     if (!ack.HasAcked())
                     {
-                        fdcService.run();
+                        fdcService.run();                        
                     }
 
+                    ///EventRouter.Instance.RegisterEmitterProvider("main", Func<)
+                    
                     Connection.ConnectionInitializationComplete = exception =>
                     {
                         InitializationComplete?.Invoke(exception);
                         isInitialized = true;
+                        
                     };
 
                     Connection.Initialize(runtimeInstance, windowNameAlias);
@@ -174,14 +198,8 @@ namespace OpenFin.FDC3
             return Connection.RaiseIntent(intent, context, target);
         }
 
-        /// <summary>
-        /// Removed context broadcast listener
-        /// </summary>
-        /// <param name="handler">Handler to be removed</param>
-        public static void RemoveContextListener(Action<Context.ContextBase> handler)
-        {
-            Connection.RemoveContextHandler(handler);
-        }
+
+
 
         /// <summary>
         /// Removed all registered handlers for an intent
@@ -189,10 +207,11 @@ namespace OpenFin.FDC3
         /// <param name="intent">The name of the intent to remove listeners for</param>
         public static Task RemoveIntentListenerAsync(string intent)
         {
-            if (IntentListeners.ContainsKey(intent))
+            if (FDC3Handlers.IntentHandlers.ContainsKey(intent))
             {
-                IntentListeners.Remove(intent);
+                FDC3Handlers.IntentHandlers.Remove(intent);
             }
+
             return Connection.RemoveIntentHandler(intent);
         }
 
@@ -201,9 +220,9 @@ namespace OpenFin.FDC3
         /// </summary>
         /// <param name="intent">The name of the intent</param>
         /// <param name="handler">The handler to be removed</param>
-        public static void UnsubscribeIntentListener(string intent, Action<ContextBase> handler)
-        {
-            Connection.UnsubscribeIntentListener(intent, handler);
-        }
+        //public static void UnsubscribeIntentListener(string intent, Action<ContextBase> handler)
+        //{
+        //    Connection.UnsubscribeIntentListener(intent, handler);
+        //}
     }
 }

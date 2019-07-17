@@ -56,6 +56,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -68,6 +69,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Channels\ChannelBase.cs" />
+    <Compile Include="Channels\TransportType.cs" />
     <Compile Include="Connection.Initialization.cs" />
     <Compile Include="Constants\ChannelTransportTypes.cs" />
     <Compile Include="Constants\FDC3EventTypes.cs" />
@@ -82,6 +84,7 @@
     <Compile Include="Events\ChannelWindowAddedEvent.cs" />
     <Compile Include="Events\EventRouter.cs" />
     <Compile Include="Events\EventTransport.cs" />
+    <Compile Include="Events\EventTransportTarget.cs" />
     <Compile Include="Events\FDC3EventTypes.cs" />
     <Compile Include="Events\IFDC3Event.cs" />
     <Compile Include="Constants\ApiToClientTopic.cs" />
@@ -94,6 +97,7 @@
     <Compile Include="Constants\RuntimeVersion.cs" />
     <Compile Include="Handlers\Handlers.cs" />
     <Compile Include="Handlers\IntentHandler.cs" />
+    <Compile Include="Payloads\ChannelAddEventListenerPayload.cs" />
     <Compile Include="Payloads\ChannelChangedPayload.cs" />
     <Compile Include="Constants\ApiFromClientTopic.cs" />
     <Compile Include="Channels\Channel.cs" />
@@ -130,6 +134,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
+    <None Include="app.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>

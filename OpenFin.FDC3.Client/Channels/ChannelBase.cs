@@ -13,9 +13,9 @@ namespace OpenFin.FDC3.Channels
     public abstract class ChannelBase
     {
         public string ChannelId { get; private set; }
-        public readonly string ChannelType;
+        public readonly ChannelType ChannelType;
 
-        protected ChannelBase(string channelId, string channelType)
+        protected ChannelBase(string channelId, ChannelType channelType)
         {
             ChannelId = channelId;
             ChannelType = channelType;
@@ -58,9 +58,22 @@ namespace OpenFin.FDC3.Channels
             return Connection.ChannelBroadcastAsync(this.ChannelId, context);
         }
 
-        public Task<ChannelContextListener> AddContextListenerAsync(Action<ContextBase> listener)
+        public Task AddContextListenerAsync(Action<ContextBase> listener)
         {
-            return Connection.AddChannelContextListenerAsync(this, listener);
+            var channelContextListener = new ChannelContextListener
+            {
+                Channel = this,
+                Handler = listener
+            };
+
+            var hasAny = FDC3Handlers.HasContextListener(this.ChannelId);
+
+            FDC3Handlers.ChannelContextHandlers.Add(channelContextListener);
+
+            if (!hasAny)
+                return Connection.AddChannelContextListenerAsync(this.ChannelId);
+            else
+                return new TaskCompletionSource<object>(null).Task;
         }
 
         public void RemoveContextListener(ChannelContextListener listener)
@@ -69,9 +82,32 @@ namespace OpenFin.FDC3.Channels
             Connection.RemoveChannelContextListenerAsync(listener);
         }
 
-        public Task AddEventListnerAsync(FDC3EventType eventType, Action<FDC3Event> eventHandler)
+        public Task AddEventListenerAsync(FDC3EventType eventType, Action<FDC3Event> eventHandler)
         {
-            return Connection.AddEventListenerAsync(this.ChannelId, eventType);
+            var hasAny = FDC3Handlers.HasEventListener(this.ChannelId);            
+            FDC3Handlers.FDC3ChannelEventHandlers[this.ChannelId].Add(eventType, eventHandler);
+
+            if (!hasAny)
+                return Connection.AddChannelEventListenerAsync(this.ChannelId, eventType);
+            else
+                return new TaskCompletionSource<object>(null).Task;
+        }
+
+        public Task UnsubscribeEventListenerAsync(FDC3EventType eventType, Action<FDC3Event> eventHandler)
+        {
+            FDC3Handlers.FDC3ChannelEventHandlers[this.ChannelId][eventType] -= eventHandler;
+            FDC3Handlers.FDC3ChannelEventHandlers[this.ChannelId].Remove(eventType);
+
+            //if (FDC3Handlers.FDC3EventHandlers[this.ChannelId][eventType])
+            //{
+            //    return Connection.RemoveFDC3EventListenerAsync(this.ChannelId, eventType);
+            //}
+            //else
+            //{
+            //    return new TaskCompletionSource<object>().Task;
+            //}
+
+            return null;
         }
     }
 }

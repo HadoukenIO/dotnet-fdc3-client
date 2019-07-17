@@ -10,15 +10,18 @@ namespace OpenFin.FDC3.Utils
 
         internal static ChannelBase GetChannelObject(ChannelTransport channelTransport)
         {
+            if (channelTransport == null)
+                return defaultChannel;
+
             ChannelBase channel;
 
             switch (channelTransport.TransportType)
             {
-                case ChannelTransportTypes.Default:
+                case TransportType.Default:
                     channel = defaultChannel;
                     break;
 
-                case ChannelTransportTypes.Desktop:
+                case TransportType.Desktop:
                     channel = new DesktopChannel(channelTransport as DesktopChannelTransport);
                     break;
 

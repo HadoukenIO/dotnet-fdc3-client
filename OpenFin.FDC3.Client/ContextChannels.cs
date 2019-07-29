@@ -7,48 +7,47 @@ using System.Threading.Tasks;
 
 namespace OpenFin.FDC3
 {
-    public sealed class ContextChannels
-    {
-        private static readonly ContextChannels _instance = new ContextChannels();
-        private static Dictionary<string, ChannelBase> channelLookup = new Dictionary<string, ChannelBase>();
+    public class ContextChannels
+    {        
+        //private Dictionary<string, ChannelBase> channelLookup = new Dictionary<string, ChannelBase>();
 
-        internal static ContextChannels Instance => _instance;
+        //private Connection connection;
+        //public ContextChannels(Connection connection)
+        //{
+        //    this.connection = connection;
+        //    channelLookup = new Dictionary<string, ChannelBase>();
+        //    channelLookup[ChannelConstants.DefaultChannelId] = ChannelUtils.DefaultChannel;
+        //}
 
-        private ContextChannels()
-        {
-            channelLookup = new Dictionary<string, ChannelBase>();
-            channelLookup[ChannelConstants.DefaultChannelId] = ChannelUtils.DefaultChannel;
-        }
+        //public async Task<IEnumerable<DesktopChannel>> GetDesktopChannelsAsync()
+        //{
+        //    var channels = await connection.GetDesktopChannelsAsync();
+        //    return channels;
+        //}
 
-        public async static Task<IEnumerable<DesktopChannel>> GetDesktopChannelsAsync()
-        {
-            var channels = await Connection.GetDesktopChannelsAsync();
-            return channels;
-        }
+        //public async Task<ChannelBase> GetChannelByIdAsync(string channelId)
+        //{
+        //    var transport = await connection.GetChannelByIdAsync(channelId);
 
-        public async static Task<ChannelBase> GetChannelByIdAsync(string channelId)
-        {
-            var transport = await Connection.GetChannelByIdAsync(channelId);
+        //    if (channelLookup.Any(x => x.Key == channelId))
+        //        return channelLookup[channelId];
 
-            if (channelLookup.Any(x => x.Key == channelId))
-                return channelLookup[channelId];
+        //    channelLookup[channelId] = ChannelUtils.GetChannelObject(transport, this);
 
-            channelLookup[channelId] = ChannelUtils.GetChannelObject(transport);
+        //    return channelLookup[channelId];
+        //}
 
-            return channelLookup[channelId];
-        }
+        //public async Task<ChannelBase> GetCurrentChannelAsync(Identity identity)
+        //{
+        //    var channel = await connection.GetCurrentChannelAsync(identity);
+        //    var channelId = channel.ChannelId;
 
-        public async static Task<ChannelBase> GetCurrentChannelAsync(Identity identity)
-        {
-            var channel = await Connection.GetCurrentChannelAsync(identity);
-            var channelId = channel.ChannelId;
+        //    if (channelLookup.Any(x => x.Key == channelId))
+        //        return channelLookup[channelId];
 
-            if (channelLookup.Any(x => x.Key == channelId))
-                return channelLookup[channelId];
+        //    channelLookup[channelId] = channel;
 
-            channelLookup[channelId] = channel;
-
-            return channel;
-        }
+        //    return channel;
+        //}
     }
 }

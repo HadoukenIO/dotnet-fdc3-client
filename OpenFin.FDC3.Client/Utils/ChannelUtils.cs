@@ -5,24 +5,35 @@ namespace OpenFin.FDC3.Utils
 {
     internal abstract class ChannelUtils
     {
-        private static DefaultChannel defaultChannel = new DefaultChannel();
-        public static DefaultChannel DefaultChannel { get { return defaultChannel; } }
+        private static DefaultChannel defaultChannel;        
 
-        internal static ChannelBase GetChannelObject(ChannelTransport channelTransport)
+        internal static ChannelBase GetChannelObject(ChannelTransport channelTransport, Connection connection)
         {
             if (channelTransport == null)
+            {
+                if(defaultChannel == null)
+                {
+                    defaultChannel = new DefaultChannel(connection);
+                }
+
                 return defaultChannel;
+            }
+                
 
             ChannelBase channel;
 
             switch (channelTransport.TransportType)
             {
                 case TransportType.Default:
+                    if(defaultChannel == null)
+                    {
+                        defaultChannel = new DefaultChannel(connection);
+                    }
                     channel = defaultChannel;
                     break;
 
                 case TransportType.Desktop:
-                    channel = new DesktopChannel(channelTransport as DesktopChannelTransport);
+                    channel = new DesktopChannel(channelTransport as DesktopChannelTransport, connection);
                     break;
 
                 default:

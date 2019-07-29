@@ -14,81 +14,101 @@ using System.Threading.Tasks;
 
 namespace OpenFin.FDC3
 {
-    internal static partial class Connection
+    public partial class Connection
     {
-        internal static Action<Exception> ConnectionInitializationComplete;
+        internal Action<Exception> ConnectionInitializationComplete;        
 
-        //private static Action<ChannelChangedPayload> channelChangedHandlers;
-        //private static Action<ContextBase> contextListeners;
-        private static ChannelClient channelClient;
-        
-
-        internal static Task<List<Identity>> GetChannelMembersAsync(string channelId)
-        {
-            return channelClient.DispatchAsync<List<Identity>>(ApiFromClientTopic.ChannelGetMembers, new { id = channelId });
-        }
-
-        internal static void AddChannelChangedEventListener(Action<ChannelChangedPayload> handler)
+        internal void AddChannelChangedEventListener(Action<ChannelChangedPayload> handler)
         {
             FDC3Handlers.ChannelChangedHandlers += handler;
         }
 
-        internal static Task AddChannelContextListenerAsync(string channelId)
-        {   
-            return channelClient.DispatchAsync<Task>(ApiFromClientTopic.ChannelAddContextListener, new { id = channelId });           
-        }               
+        internal Task AddChannelContextListenerAsync(string channelId)
+        {
+            return channelClient.DispatchAsync<Task>(ApiFromClientTopic.ChannelAddContextListener, new { id = channelId });
+        }
 
-        internal static Task BroadcastAsync(Context.ContextBase context)
+        internal Task AddChannelEventListenerAsync(string channelId, FDC3EventType eventType)
+        {
+            return channelClient.DispatchAsync(ApiFromClientTopic.ChannelAddEventListener, new { id = channelId, eventType });
+        }
+
+        internal Task AddIntentHandlerAsync(string intent)
+        {
+            return channelClient.DispatchAsync(ApiFromClientTopic.AddIntentListener, new { intent });
+        }
+
+        /// <summary>
+        /// Publishes context to other applications on the desktop
+        /// </summary>
+        /// <param name="context">The context to publish to other applications</param>
+        /// <returns></returns>
+        public Task BroadcastAsync(Context.ContextBase context)
         {
             return channelClient.DispatchAsync<Task>(ApiFromClientTopic.Broadcast, new { context = context });
         }
 
-        internal static Task ChannelBroadcastAsync(string channelId, ContextBase context)
+        internal Task ChannelBroadcastAsync(string channelId, ContextBase context)
         {
             return channelClient.DispatchAsync<Task>(ApiFromClientTopic.ChannelBroadcast, new { id = channelId, context });
         }
 
-        internal static Task<AppIntent> FindIntentAsync(string intent, ContextBase context)
+        /// <summary>
+        /// Obtain information about in intent
+        /// </summary>
+        /// <param name="intent">The name of the intent</param>
+        /// <param name="context">Optional context about the intent</param>
+        /// <returns>A single application intent</returns>
+        public Task<AppIntent> FindIntentAsync(string intent, ContextBase context)
         {
             return channelClient.DispatchAsync<AppIntent>(ApiFromClientTopic.FindIntent, new { intent, context });
         }
 
-        internal static Task<List<AppIntent>> FindIntentsByContextAsync(ContextBase context)
+        /// <summary>
+        /// Finds all intents by context
+        /// </summary>
+        /// <param name="context">The intent context</param>
+        /// <returns></returns>
+        public Task<List<AppIntent>> FindIntentsByContextAsync(ContextBase context)
         {
             return channelClient.DispatchAsync<List<AppIntent>>(ApiFromClientTopic.FindIntentsByContext, new { context });
         }
 
-        internal static Task<ChannelTransport> GetChannelByIdAsync(string channelId)
+        public Task<ChannelTransport> GetChannelByIdAsync(string channelId)
         {
             return channelClient.DispatchAsync<ChannelTransport>(ApiFromClientTopic.GetChannelById, new { id = channelId });
         }
 
-        internal async static Task<ChannelBase> GetCurrentChannelAsync(Identity identity)
+        public Task<List<Identity>> GetChannelMembersAsync(string channelId)
+        {
+            return channelClient.DispatchAsync<List<Identity>>(ApiFromClientTopic.ChannelGetMembers, new { id = channelId });
+        }
+        public async  Task<ChannelBase> GetCurrentChannelAsync(Identity identity)
         {
             var channelTransport = await channelClient.DispatchAsync<ChannelTransport>(ApiFromClientTopic.GetCurrentChannel, new { identity });
-            return ChannelUtils.GetChannelObject(channelTransport);
+            return ChannelUtils.GetChannelObject(channelTransport, this);
         }
 
-        internal static Task<ContextBase> GetCurrentContextAsync(string channelId)
+        public  Task<ContextBase> GetCurrentContextAsync(string channelId)
         {
             return channelClient.DispatchAsync<ContextBase>(ApiFromClientTopic.ChannelGetCurrentContext, new { id = channelId });
         }
 
-        internal async static Task<IEnumerable<DesktopChannel>> GetDesktopChannelsAsync()
+        public async Task<IEnumerable<DesktopChannel>> GetDesktopChannelsAsync()
         {
             var transports = await channelClient.DispatchAsync<List<DesktopChannelTransport>>(ApiFromClientTopic.GetDesktopChannels, JValue.CreateUndefined());
             var channels = new List<DesktopChannel>();
 
             foreach (var transport in transports)
             {
-                var channel = ChannelUtils.GetChannelObject(transport) as DesktopChannel;
+                var channel = ChannelUtils.GetChannelObject(transport, this) as DesktopChannel;
                 channels.Add(channel);
             }
 
             return channels;
         }
 
-        internal static Task JoinChannelAsync(string channelId, Identity identity = null)
+        internal  Task JoinChannelAsync(string channelId, Identity identity = null)
         {
             if (identity == null)
             {
@@ -98,34 +118,92 @@ namespace OpenFin.FDC3
             return channelClient.DispatchAsync<Task>(ApiFromClientTopic.ChannelJoin, new { id = channelId, identity = identity });
         }
 
-        internal static Task OpenAsync(string name, ContextBase context = null)
+        /// <summary>
+        /// Launches/links to an application by name
+        /// </summary>
+        /// <param name="name">The application name</param>
+        /// <param name="context">Additional optional properties to be passed when </param>
+        /// <returns></returns>
+        public Task OpenAsync(string name, ContextBase context = null)
         {
             return channelClient.DispatchAsync<string>(ApiFromClientTopic.Open, new { name, context });
         }
 
-        internal static Task<IntentResolution> RaiseIntent(string intent, ContextBase context, string target)
+        /// <summary>
+        /// Raises an intent to resolve
+        /// </summary>
+        /// <param name="intent">The intent to resolve</param>
+        /// <param name="context">The context</param>
+        /// <param name="target"></param>
+        /// <returns></returns>
+        public Task<IntentResolution> RaiseIntent(string intent, ContextBase context, string target)
         {
             return channelClient.DispatchAsync<IntentResolution>(ApiFromClientTopic.RaiseIntent, new { intent, context, target });
         }
 
-        internal static Task RemoveChannelContextListenerAsync(ChannelContextListener listener)
+        internal  Task RemoveChannelContextListenerAsync(ChannelContextListener listener)
         {
             return channelClient.DispatchAsync<Task>(ApiFromClientTopic.ChannelRemoveContextListener, new { id = listener.Channel.ChannelId });
         }
 
-        internal static Task RemoveIntentHandler(string intent)
+        /// <summary>
+        /// Removes all registered handlers for an intent
+        /// </summary>
+        /// <param name="intent">The name of the intent to remove listeners for</param>
+        internal Task RemoveIntentHandler(string intent)
         {
+            if (FDC3Handlers.IntentHandlers.ContainsKey(intent))
+            {
+                FDC3Handlers.IntentHandlers.Remove(intent);
+            }
+
             return channelClient.DispatchAsync(ApiFromClientTopic.RemoveIntentListener, new { intent });
         }
 
-        internal static Task AddChannelEventListenerAsync(string channelId, FDC3EventType eventType)
-        {            
-            return channelClient.DispatchAsync(ApiFromClientTopic.ChannelAddEventListener, new { id = channelId, eventType });
+        /// <summary>
+        /// Ads a listener for incoming intents from the agent
+        /// </summary>
+        /// <param name="intent">The intent to listen for</param>
+        /// <param name="handler">The handler to be called when an intent in received</param>
+        public Task AddIntentListenerAsync(string intent, Action<ContextBase> handler)
+        {
+            var hasIntent = FDC3Handlers.HasIntentHandler(intent);
+
+            if (FDC3Handlers.IntentHandlers.Any(x => x.Key == intent))
+            {
+                FDC3Handlers.IntentHandlers[intent] += handler;
+            }
+            else
+            {
+                FDC3Handlers.IntentHandlers.Add(intent, handler);
+            }
+
+            if (!hasIntent)
+            {
+                return channelClient.DispatchAsync(ApiFromClientTopic.AddIntentListener, new { intent }); ;
+            }
+            else
+            {
+                return Task.FromResult<object>(null);
+            }
         }
 
-        internal static Task AddIntentHandlerAsync(string intent)
+        /// <summary>
+        /// Adds a listener for incoming context broadcast from the Desktop Agent.
+        /// </summary>
+        /// <param name="handler">The handler to invoke when </param>
+        public  void AddContextHandler(Action<ContextBase> handler)
         {
-            return channelClient.DispatchAsync(ApiFromClientTopic.AddIntentListener, new { intent });
+            ContextHandlers += handler;            
+        }
+
+        /// <summary>
+        /// Removed context broadcast listener
+        /// </summary>
+        /// <param name="handler">Handler to be removed</param>
+        internal void RemoveContextHandler(Action<ContextBase> handler)
+        {
+            FDC3Handlers.ContextHandlers -= handler;
         }
     }
 }

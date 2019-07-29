@@ -2,40 +2,47 @@
 using OpenFin.FDC3.Context;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
+using System.Windows.Documents;
+using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using System.Windows.Shapes;
 
 namespace OpenFin.FDC3.Demo
 {
     /// <summary>
-    /// Interaction logic for MainWindow.xaml
+    /// Interaction logic for Window2.xaml
     /// </summary>
-    public partial class MainWindow : System.Windows.Window
+    public partial class SecondWindow : Window
     {
         private bool contextChanging = false;
-        private Connection connection;
-        SecondWindow win2 = new SecondWindow();       
-        public MainWindow()
-        {
-            InitializeComponent();                      
+        Connection connection;
 
-            FDC3.InitializationComplete = DesktopAgent_Initialized;
-#if DEBUG
-            FDC3.Initialize($"{System.IO.Directory.GetCurrentDirectory()}\\app.json");
-#else
-            FDC3.Initialize();
-#endif
+        public SecondWindow()
+        {
+            InitializeComponent();
+            this.Loaded += SecondWindow_Loaded;
         }
 
-        private async void DesktopAgent_Initialized()
+        private void SecondWindow_Loaded(object sender, RoutedEventArgs e)
         {
-            connection = await ConnectionManager.CreateConnectionAsync("mainwin");
+            initialize();
+        }
+
+        private async void initialize()
+        {
+            connection = await ConnectionManager.CreateConnectionAsync("secondWindow");
+            var channels = await connection.GetDesktopChannelsAsync();
+
             connection.AddContextHandler(ContextChanged);
 
-            var channels = await connection.GetDesktopChannelsAsync();            
-
-            await Dispatcher.InvokeAsync(async () =>
+            await  Dispatcher.InvokeAsync(async () =>
             {
                 tbAppId.Text = FDC3.Uuid;
 
@@ -47,10 +54,8 @@ namespace OpenFin.FDC3.Demo
                     }
                 }
 
-                ChannelListComboBox.SelectedValue = "Global";              
-            });
-
-            connection.AddContextHandler(ContextChanged);
+                ChannelListComboBox.SelectedValue = "Global";
+            });                       
         }
 
         private void ContextChanged(ContextBase obj)
@@ -89,7 +94,7 @@ namespace OpenFin.FDC3.Demo
             }
         }
 
-        DesktopChannel newChannel; 
+        DesktopChannel newChannel;
 
         private async void ChannelListComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
@@ -106,18 +111,13 @@ namespace OpenFin.FDC3.Demo
             });
 
             try
-            {                
-                await newChannel.JoinAsync();                
+            {
+                await newChannel.JoinAsync();
             }
             catch (Exception ex)
             {
                 MessageBox.Show(ex.ToString());
             }
-        }
-
-        private void BtnLaunch_Click(object sender, RoutedEventArgs e)
-        {
-            win2.Show();
         }
     }
 }

@@ -12,13 +12,15 @@ namespace OpenFin.FDC3.Channels
     /// </summary>
     public abstract class ChannelBase
     {
+        private Connection connection;
         public string ChannelId { get; private set; }
         public readonly ChannelType ChannelType;
 
-        protected ChannelBase(string channelId, ChannelType channelType)
+        protected ChannelBase(string channelId, ChannelType channelType, Connection connection)
         {
             ChannelId = channelId;
             ChannelType = channelType;
+            this.connection = connection;
         }
 
         /// <summary>
@@ -27,7 +29,7 @@ namespace OpenFin.FDC3.Channels
         /// <returns></returns>
         public Task<List<Identity>> GetMembersAsync()
         {
-            return Connection.GetChannelMembersAsync(this.ChannelId);
+            return connection.GetChannelMembersAsync(this.ChannelId);
         }
 
         /// <summary>
@@ -39,7 +41,7 @@ namespace OpenFin.FDC3.Channels
         /// </returns>
         public Task<ContextBase> GetCurrentContextAsync()
         {
-            return Connection.GetCurrentContextAsync(this.ChannelId);
+            return connection.GetCurrentContextAsync(this.ChannelId);
         }
 
         /// <summary>
@@ -50,12 +52,12 @@ namespace OpenFin.FDC3.Channels
         /// <returns></returns>
         public Task JoinAsync(Identity identity = null)
         {
-            return Connection.JoinChannelAsync(this.ChannelId, identity);
+            return connection.JoinChannelAsync(this.ChannelId, identity);
         }
 
         public Task BroadcastAsync(ContextBase context)
         {
-            return Connection.ChannelBroadcastAsync(this.ChannelId, context);
+            return connection.ChannelBroadcastAsync(this.ChannelId, context);
         }
 
         public Task AddContextListenerAsync(Action<ContextBase> listener)
@@ -71,7 +73,7 @@ namespace OpenFin.FDC3.Channels
             FDC3Handlers.ChannelContextHandlers.Add(channelContextListener);
 
             if (!hasAny)
-                return Connection.AddChannelContextListenerAsync(this.ChannelId);
+                return connection.AddChannelContextListenerAsync(this.ChannelId);
             else
                 return new TaskCompletionSource<object>(null).Task;
         }
@@ -79,7 +81,7 @@ namespace OpenFin.FDC3.Channels
         public void RemoveContextListener(ChannelContextListener listener)
         {
             FDC3Handlers.ChannelContextHandlers.RemoveAll(x => x.Channel.ChannelId == listener.Channel.ChannelId);
-            Connection.RemoveChannelContextListenerAsync(listener);
+            connection.RemoveChannelContextListenerAsync(listener);
         }
 
         public Task AddEventListenerAsync(FDC3EventType eventType, Action<FDC3Event> eventHandler)
@@ -88,7 +90,7 @@ namespace OpenFin.FDC3.Channels
             FDC3Handlers.FDC3ChannelEventHandlers[this.ChannelId].Add(eventType, eventHandler);
 
             if (!hasAny)
-                return Connection.AddChannelEventListenerAsync(this.ChannelId, eventType);
+                return connection.AddChannelEventListenerAsync(this.ChannelId, eventType);
             else
                 return new TaskCompletionSource<object>(null).Task;
         }

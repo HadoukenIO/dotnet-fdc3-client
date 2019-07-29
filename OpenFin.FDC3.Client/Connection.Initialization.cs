@@ -1,4 +1,5 @@
 ﻿using Openfin.Desktop;
+using Openfin.Desktop.Messaging;
 using OpenFin.FDC3.Constants;
 using OpenFin.FDC3.Context;
 using OpenFin.FDC3.Events;
@@ -11,21 +12,28 @@ using System.Threading.Tasks;
 
 namespace OpenFin.FDC3
 {
-    internal static partial class Connection
+    public partial class Connection
     {
-        internal static void Initialize(Runtime runtimeInstance, string windowNameAlias = "")
-        {            
-            channelClient = runtimeInstance.InterApplicationBus.Channel.CreateClient(Fdc3ServiceConstants.ServiceChannel, windowNameAlias);
+        public string WindowNameAlias { get; }
+        private ChannelClient channelClient;
+
+        Action<ContextBase> ContextHandlers;
+
+        internal Connection(string windowNameAlias = "")
+        {
+            WindowNameAlias = windowNameAlias;            
+        }
+
+        internal Task Initialize(Runtime runtimeInstance)
+        {
+            channelClient = runtimeInstance.InterApplicationBus.Channel.CreateClient(Fdc3ServiceConstants.ServiceChannel, WindowNameAlias);
 
             registerChannelTopics();
 
-            channelClient.ConnectAsync().ContinueWith(x =>
-            {
-                ConnectionInitializationComplete?.Invoke(x.Exception);
-            });
+            return channelClient.ConnectAsync();
         }
 
-        private static void registerChannelTopics()
+        private void registerChannelTopics()
         {
             if (channelClient == null)
             {
@@ -55,12 +63,12 @@ namespace OpenFin.FDC3
 
             channelClient.RegisterTopic<EventTransport<FDC3Event>>(ApiToClientTopic.Event, @event =>
             {                
-                EventRouter.Instance.DispatchEvent(@event);
+                EventRouter.Instance.DispatchEvent(@event, this);
             });
 
             channelClient.RegisterTopic<ContextBase>(ApiToClientTopic.Context, payload =>
             {
-                FDC3Handlers.ContextHandlers?.Invoke(payload);
+                ContextHandlers?.Invoke(payload);
             });
         }       
     }

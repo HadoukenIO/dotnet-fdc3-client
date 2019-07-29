@@ -11,7 +11,7 @@
     "defaultWidth": 500
   },
   "runtime": {
-    "arguments" :  "--inspect",
+    "arguments": "--inspect",
     "version": "beta"
   }
 }

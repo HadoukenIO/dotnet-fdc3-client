@@ -47,15 +47,15 @@
     <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.12.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
-    <Reference Include="OpenfinDesktop, Version=9.0.1.5, Culture=neutral, PublicKeyToken=18a277d64dddd680, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\lj-dotnet-adapter\OpenfinDesktop\bin\Debug\OpenfinDesktop.dll</HintPath>
+    <Reference Include="OpenfinDesktop, Version=10.0.0.1, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\OpenfinDesktop.10.0.0-alpha01\lib\net452\OpenfinDesktop.dll</HintPath>
     </Reference>
     <Reference Include="SuperSocket.ClientEngine, Version=0.10.0.0, Culture=neutral, PublicKeyToken=ee9af13f57f00acc, processorArchitecture=MSIL">
       <HintPath>..\packages\SuperSocket.ClientEngine.Core.0.10.0\lib\net45\SuperSocket.ClientEngine.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.IO.Compression" />
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -71,6 +71,7 @@
     <Compile Include="Channels\ChannelBase.cs" />
     <Compile Include="Channels\TransportType.cs" />
     <Compile Include="Connection.Initialization.cs" />
+    <Compile Include="ConnectionManager.cs" />
     <Compile Include="Constants\ChannelTransportTypes.cs" />
     <Compile Include="Constants\FDC3EventTypes.cs" />
     <Compile Include="Events\ChannelChangedEvent.cs" />
@@ -134,9 +135,8 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
-    <None Include="app.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
+    <None Include="app.json" />
+    <None Include="openfin.fdc.nuspec" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>

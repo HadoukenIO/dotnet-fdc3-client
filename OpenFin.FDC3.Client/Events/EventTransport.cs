@@ -10,11 +10,11 @@ namespace OpenFin.FDC3.Events
         public ChannelTransport Channel { get; set; }
         public ChannelTransport PreviousChannel { get; set; }
         public EventTransportTarget Target { get; set; }
-        public FDC3Event ToEvent()
+        public FDC3Event ToEvent(Connection connection)
         {
 
-            var channel = ChannelUtils.GetChannelObject(this.Channel);
-            var previousChannel = ChannelUtils.GetChannelObject(PreviousChannel);
+            var channel = ChannelUtils.GetChannelObject(this.Channel, connection);
+            var previousChannel = ChannelUtils.GetChannelObject(PreviousChannel, connection);
            
 
             switch (Type)

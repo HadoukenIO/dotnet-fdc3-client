@@ -7,5 +7,7 @@ namespace OpenFin.FDC3.Exceptions
         public OpenFinInitializationException(string message) : base(message)
         {
         }
+
+        public OpenFinInitializationException(string message, Exception innerException) : base(message, innerException) { }
     }
 }

@@ -40,7 +40,7 @@ namespace OpenFin.FDC3
                 throw new NullReferenceException("ChannelClient must be created before registering topics.");
             }
 
-            channelClient.RegisterTopic<RaiseIntentPayload>(ApiToClientTopic.Intent, payload =>
+            channelClient.RegisterTopic<ReceiveIntentPayload>(ApiToClientTopic.ReceiveIntent, payload =>
             {
                 if (FDC3Handlers.IntentHandlers.ContainsKey(payload.Intent))
                 {
@@ -48,7 +48,7 @@ namespace OpenFin.FDC3
                 }
             });
 
-            channelClient.RegisterTopic<HandleChannelContextPayload>(ApiToClientTopic.HandleChannelContext, payload =>
+            channelClient.RegisterTopic<HandleChannelContextPayload>(ApiToClientTopic.ChannelReceiveContext, payload =>
             {
                 foreach (var listener in FDC3Handlers.ChannelContextHandlers.Where(x => x.Channel.ChannelId == payload.ChannelId))
                 {
@@ -66,9 +66,9 @@ namespace OpenFin.FDC3
                 EventRouter.Instance.DispatchEvent(@event, this);
             });
 
-            channelClient.RegisterTopic<ContextBase>(ApiToClientTopic.Context, payload =>
+            channelClient.RegisterTopic<ReceiveContextPayload>(ApiToClientTopic.ReceiveContext, payload =>
             {
-                ContextHandlers?.Invoke(payload);
+                ContextHandlers?.Invoke(payload.Context);
             });
         }       
     }

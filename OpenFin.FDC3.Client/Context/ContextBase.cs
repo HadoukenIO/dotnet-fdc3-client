@@ -12,7 +12,7 @@ namespace OpenFin.FDC3.Context
         private static Dictionary<string, List<PropertyInfo>> properties;
 
         [JsonProperty("type")]
-        public virtual string Type { get; }
+        public virtual string Type { get; set; }
 
         [JsonProperty("name")]
         public string Name { get; set; }

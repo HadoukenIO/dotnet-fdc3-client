@@ -22,11 +22,12 @@ namespace OpenFin.FDC3
         /// </summary>
         public static void Initialize()
         {
-            if (!isInitialized)
+            if (isInitialized)
                 return;
 
             var fdcManifestUri = new Uri(Fdc3ServiceConstants.ServiceManifestUrl);
-            Initialize(fdcManifestUri);
+            var runtimeOptions = RuntimeOptions.LoadManifest(fdcManifestUri);
+            completeInitialization(runtimeOptions);
         }
 
         /// <summary>
@@ -41,20 +42,6 @@ namespace OpenFin.FDC3
             var runtimeOptions = RuntimeOptions.LoadManifest(filePath);
             completeInitialization(runtimeOptions);
         }
-
-        /// <summary>
-        /// Initialize the agent with a specified URL. The InitializationComplete Action delegate must be set before calling this function.
-        /// </summary>
-        /// <param name="manifestUri">The URI if the manifest</param>
-        public static void Initialize(Uri manifestUri)
-        {
-            if (!isInitialized)
-                return;           
-
-            var runtimeOptions = RuntimeOptions.LoadManifest(manifestUri);
-
-            completeInitialization(runtimeOptions);
-        } 
 
         private static void completeInitialization(RuntimeOptions runtimeOptions)
         {
@@ -72,11 +59,11 @@ namespace OpenFin.FDC3
                     if (!ack.HasAcked())
                     {
                         fdcService.run();
-                        ConnectionManager.RuntimeInstance = runtimeInstance;
-                        isInitialized = true;
-
-                        InitializationComplete.Invoke();                       
                     }
+
+                    ConnectionManager.RuntimeInstance = runtimeInstance;
+                    isInitialized = true;
+                    InitializationComplete.Invoke();                       
                 });
             });
         }

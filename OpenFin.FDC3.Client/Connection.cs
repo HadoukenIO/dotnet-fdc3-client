@@ -1,5 +1,4 @@
 ﻿using Newtonsoft.Json.Linq;
-using Openfin.Desktop.Messaging;
 using OpenFin.FDC3.Channels;
 using OpenFin.FDC3.Constants;
 using OpenFin.FDC3.Context;
@@ -16,8 +15,6 @@ namespace OpenFin.FDC3
 {
     public partial class Connection
     {
-        internal Action<Exception> ConnectionInitializationComplete;        
-
         internal void AddChannelChangedEventListener(Action<ChannelChangedPayload> handler)
         {
             FDC3Handlers.ChannelChangedHandlers += handler;
@@ -94,14 +91,14 @@ namespace OpenFin.FDC3
             return channelClient.DispatchAsync<ContextBase>(ApiFromClientTopic.ChannelGetCurrentContext, new { id = channelId });
         }
 
-        public async Task<IEnumerable<DesktopChannel>> GetDesktopChannelsAsync()
+        public async Task<IEnumerable<SystemChannel>> GetSystemChannelsAsync()
         {
-            var transports = await channelClient.DispatchAsync<List<DesktopChannelTransport>>(ApiFromClientTopic.GetDesktopChannels, JValue.CreateUndefined());
-            var channels = new List<DesktopChannel>();
+            var transports = await channelClient.DispatchAsync<List<SystemChannelTransport>>(ApiFromClientTopic.GetSystemChannels, JValue.CreateUndefined());
+            var channels = new List<SystemChannel>();
 
             foreach (var transport in transports)
             {
-                var channel = ChannelUtils.GetChannelObject(transport, this) as DesktopChannel;
+                var channel = ChannelUtils.GetChannelObject(transport, this) as SystemChannel;
                 channels.Add(channel);
             }
 

@@ -9,7 +9,7 @@
         internal const string RaiseIntent = "RAISE-INTENT";
         internal const string AddIntentListener = "ADD-INTENT-LISTENER";
         internal const string RemoveIntentListener = "REMOVE-INTENT-LISTENER";
-        internal const string GetDesktopChannels = "GET-DESKTOP-CHANNELS";
+        internal const string GetSystemChannels = "GET-SYSTEM-CHANNELS";
         internal const string GetChannelById = "GET-CHANNEL-BY-ID";
         internal const string GetCurrentChannel = "GET-CURRENT-CHANNEL";
         internal const string ChannelGetMembers = "CHANNEL-GET-MEMBERS";

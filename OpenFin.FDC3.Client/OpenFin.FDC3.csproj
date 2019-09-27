@@ -90,6 +90,7 @@
     <Compile Include="Channels\Identity.cs" />
     <Compile Include="Events\ChannelWindowAddedEvent.cs" />
     <Compile Include="Events\EventRouter.cs" />
+    <Compile Include="Events\EventTargetConverter.cs" />
     <Compile Include="Events\EventTransport.cs" />
     <Compile Include="Events\EventTransportTarget.cs" />
     <Compile Include="Events\FDC3EventTypes.cs" />

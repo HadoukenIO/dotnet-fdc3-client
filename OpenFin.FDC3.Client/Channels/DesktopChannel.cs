@@ -1,14 +1,12 @@
 ﻿namespace OpenFin.FDC3.Channels
 {
-    public class DesktopChannel : ChannelBase
+    public class SystemChannel : ChannelBase
     {
-        public string Name { get; }
-        public int Color { get; }
+        public DisplayMetadata VisualIdentity { get; }
 
-        public DesktopChannel(DesktopChannelTransport transport, Connection connection) : base(transport.ChannelId, Channels.ChannelType.Desktop, connection)
+        public SystemChannel(SystemChannelTransport transport, Connection connection) : base(transport.ChannelId, Channels.ChannelType.System, connection)
         {
-            this.Name = transport.Name;
-            this.Color = transport.Color;
+            this.VisualIdentity = transport.VisualIdentity;
         }
     }
 }

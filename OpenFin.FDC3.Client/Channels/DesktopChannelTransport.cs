@@ -1,11 +1,11 @@
-﻿using OpenFin.FDC3.Constants;
+﻿using Newtonsoft.Json;
 
 namespace OpenFin.FDC3.Channels
 {
-    public class DesktopChannelTransport : ChannelTransport
+    public class SystemChannelTransport : ChannelTransport
     {
-        public override TransportType TransportType => TransportType.Desktop;
-        public string Name { get; set; }
-        public int Color { get; set; }
+        public override ChannelType ChannelType => ChannelType.System;
+        [JsonProperty("visualIdentity")]
+        public DisplayMetadata VisualIdentity { get; set; }
     }
 }

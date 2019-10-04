@@ -4,7 +4,7 @@
   "startup_app": {
     "name": "FDC3-Service",
     "description": "OpenFin FDC3 Desktop Service",
-    "url": "https://cdn.openfin.co/services/openfin/fdc3/0.2.0-alpha.20/provider.html",
+    "url": "https://cdn.openfin.co/services/openfin/fdc3/0.2.0/provider.html",
     "uuid": "fdc3-service",
     "autoShow": false,
     "defaultHeight": 400,

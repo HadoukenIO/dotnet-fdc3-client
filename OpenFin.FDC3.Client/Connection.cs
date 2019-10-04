@@ -71,22 +71,23 @@ namespace OpenFin.FDC3
             return channelClient.DispatchAsync<List<AppIntent>>(ApiFromClientTopic.FindIntentsByContext, new { context });
         }
 
-        public Task<ChannelTransport> GetChannelByIdAsync(string channelId)
+        public async Task<ChannelBase> GetChannelByIdAsync(string channelId)
         {
-            return channelClient.DispatchAsync<ChannelTransport>(ApiFromClientTopic.GetChannelById, new { id = channelId });
+            var channelTransport = await channelClient.DispatchAsync<ChannelTransport>(ApiFromClientTopic.GetChannelById, new { id = channelId });
+            return ChannelUtils.GetChannelObject(channelTransport, this);
         }
 
         public Task<List<Identity>> GetChannelMembersAsync(string channelId)
         {
             return channelClient.DispatchAsync<List<Identity>>(ApiFromClientTopic.ChannelGetMembers, new { id = channelId });
         }
-        public async  Task<ChannelBase> GetCurrentChannelAsync(Identity identity)
+        public async Task<ChannelBase> GetCurrentChannelAsync(Identity identity)
         {
             var channelTransport = await channelClient.DispatchAsync<ChannelTransport>(ApiFromClientTopic.GetCurrentChannel, new { identity });
             return ChannelUtils.GetChannelObject(channelTransport, this);
         }
 
-        public  Task<ContextBase> GetCurrentContextAsync(string channelId)
+        public Task<ContextBase> GetCurrentContextAsync(string channelId)
         {
             return channelClient.DispatchAsync<ContextBase>(ApiFromClientTopic.ChannelGetCurrentContext, new { id = channelId });
         }
@@ -189,7 +190,7 @@ namespace OpenFin.FDC3
         /// Adds a listener for incoming context broadcast from the Desktop Agent.
         /// </summary>
         /// <param name="handler">The handler to invoke when </param>
-        public  void AddContextHandler(Action<ContextBase> handler)
+        public void AddContextHandler(Action<ContextBase> handler)
         {
             ContextHandlers += handler;            
         }

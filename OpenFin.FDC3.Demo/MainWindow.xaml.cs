@@ -39,6 +39,8 @@ namespace OpenFin.FDC3.Demo
                 tbAppId.Text = FDC3.Uuid;
 
                 var channels = await connection.GetSystemChannelsAsync();
+                ChannelBase defaultChannel = await connection.GetChannelByIdAsync("default");
+                ChannelListComboBox.Items.Add(new ComboBoxItem() { Content = "Default", Tag = defaultChannel });
                 foreach (var channel in channels)
                 {
                     if (channel.ChannelType == ChannelType.System)
@@ -90,15 +92,36 @@ namespace OpenFin.FDC3.Demo
 
         private async void ChannelListComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            SystemChannel newChannel = (ChannelListComboBox.SelectedItem as ComboBoxItem).Tag as SystemChannel;
+            ChannelBase newChannel = (ChannelListComboBox.SelectedItem as ComboBoxItem).Tag as ChannelBase;
 
-            // 'Color' can technically be any CSS colour string
-            // For now, we assume that it'll always be in "#000000" format
-            int color = Int32.Parse(newChannel.VisualIdentity.Color.Substring(1), System.Globalization.NumberStyles.HexNumber);
-            var newColor = Color.FromRgb(
-                (byte)((color >> 16) & 0xFF),
-                (byte)((color >> 8) & 0xFF),
-                (byte)(color & 0xFF));
+            Color newColor;
+            if (newChannel is SystemChannel)
+            {
+                DisplayMetadata metadata = (newChannel as SystemChannel).VisualIdentity;
+
+                // 'Color' can technically be any CSS colour string
+                // For now, we assume that it'll always be in "#000000" format
+                int color = Int32.Parse(metadata.Color.Substring(1), System.Globalization.NumberStyles.HexNumber);
+                newColor = Color.FromRgb(
+                    (byte)((color >> 16) & 0xFF),
+                    (byte)((color >> 8) & 0xFF),
+                    (byte)(color & 0xFF));
+            }
+            else if (newChannel is DefaultChannel)
+            {
+                // Use white for default channel
+                newColor = Color.FromRgb(255, 255, 255);
+            }
+            else if (newChannel != null)
+            {
+                // A new channel type has been added to the service
+                Console.WriteLine($"Unexpected channel type {newChannel.ChannelType}");
+                newColor = Color.FromRgb(0, 0, 0);
+            }
+            else
+            {
+                return;
+            }
 
             Dispatcher.Invoke(() =>
             {

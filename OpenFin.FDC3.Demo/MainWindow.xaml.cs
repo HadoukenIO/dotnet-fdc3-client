@@ -58,7 +58,14 @@ namespace OpenFin.FDC3.Demo
             Dispatcher.Invoke(() =>
             {
                 contextChanging = true;
-                TickerComboBox.SelectedValue = obj.Id["ticker"];
+                if (obj.Id.ContainsKey("ticker"))
+                {
+                    TickerComboBox.SelectedValue = obj.Id["ticker"];
+                }
+                else
+                {
+                    TickerComboBox.SelectedValue = obj.Name;
+                }
                 contextChanging = false;
             });
         }

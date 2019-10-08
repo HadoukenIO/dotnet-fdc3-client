@@ -22,9 +22,9 @@ namespace OpenFin.FDC3.Utils
 
             ChannelBase channel;
 
-            switch (channelTransport.TransportType)
+            switch (channelTransport.ChannelType)
             {
-                case TransportType.Default:
+                case ChannelType.Default:
                     if(defaultChannel == null)
                     {
                         defaultChannel = new DefaultChannel(connection);
@@ -32,8 +32,8 @@ namespace OpenFin.FDC3.Utils
                     channel = defaultChannel;
                     break;
 
-                case TransportType.Desktop:
-                    channel = new DesktopChannel(channelTransport as DesktopChannelTransport, connection);
+                case ChannelType.System:
+                    channel = new SystemChannel(channelTransport as SystemChannelTransport, connection);
                     break;
 
                 default:

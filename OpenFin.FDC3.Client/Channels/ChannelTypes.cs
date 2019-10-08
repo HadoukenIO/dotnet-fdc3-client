@@ -7,9 +7,9 @@ namespace OpenFin.FDC3.Channels
     [JsonConverter(typeof(StringEnumConverter))]
     public enum ChannelType
     {
-        [EnumMember(Value =  "default")]
+        [EnumMember(Value = "default")]
         Default,
-        [EnumMember(Value = "desktop")]
-        Desktop
+        [EnumMember(Value = "system")]
+        System
     }
 }

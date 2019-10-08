@@ -1,5 +1,4 @@
 ﻿using Newtonsoft.Json.Linq;
-using Openfin.Desktop.Messaging;
 using OpenFin.FDC3.Channels;
 using OpenFin.FDC3.Constants;
 using OpenFin.FDC3.Context;
@@ -16,8 +15,6 @@ namespace OpenFin.FDC3
 {
     public partial class Connection
     {
-        internal Action<Exception> ConnectionInitializationComplete;        
-
         internal void AddChannelChangedEventListener(Action<ChannelChangedPayload> handler)
         {
             FDC3Handlers.ChannelChangedHandlers += handler;
@@ -74,34 +71,35 @@ namespace OpenFin.FDC3
             return channelClient.DispatchAsync<List<AppIntent>>(ApiFromClientTopic.FindIntentsByContext, new { context });
         }
 
-        public Task<ChannelTransport> GetChannelByIdAsync(string channelId)
+        public async Task<ChannelBase> GetChannelByIdAsync(string channelId)
         {
-            return channelClient.DispatchAsync<ChannelTransport>(ApiFromClientTopic.GetChannelById, new { id = channelId });
+            var channelTransport = await channelClient.DispatchAsync<ChannelTransport>(ApiFromClientTopic.GetChannelById, new { id = channelId });
+            return ChannelUtils.GetChannelObject(channelTransport, this);
         }
 
         public Task<List<Identity>> GetChannelMembersAsync(string channelId)
         {
             return channelClient.DispatchAsync<List<Identity>>(ApiFromClientTopic.ChannelGetMembers, new { id = channelId });
         }
-        public async  Task<ChannelBase> GetCurrentChannelAsync(Identity identity)
+        public async Task<ChannelBase> GetCurrentChannelAsync(Identity identity)
         {
             var channelTransport = await channelClient.DispatchAsync<ChannelTransport>(ApiFromClientTopic.GetCurrentChannel, new { identity });
             return ChannelUtils.GetChannelObject(channelTransport, this);
         }
 
-        public  Task<ContextBase> GetCurrentContextAsync(string channelId)
+        public Task<ContextBase> GetCurrentContextAsync(string channelId)
         {
             return channelClient.DispatchAsync<ContextBase>(ApiFromClientTopic.ChannelGetCurrentContext, new { id = channelId });
         }
 
-        public async Task<IEnumerable<DesktopChannel>> GetDesktopChannelsAsync()
+        public async Task<IEnumerable<SystemChannel>> GetSystemChannelsAsync()
         {
-            var transports = await channelClient.DispatchAsync<List<DesktopChannelTransport>>(ApiFromClientTopic.GetDesktopChannels, JValue.CreateUndefined());
-            var channels = new List<DesktopChannel>();
+            var transports = await channelClient.DispatchAsync<List<SystemChannelTransport>>(ApiFromClientTopic.GetSystemChannels, JValue.CreateUndefined());
+            var channels = new List<SystemChannel>();
 
             foreach (var transport in transports)
             {
-                var channel = ChannelUtils.GetChannelObject(transport, this) as DesktopChannel;
+                var channel = ChannelUtils.GetChannelObject(transport, this) as SystemChannel;
                 channels.Add(channel);
             }
 
@@ -192,7 +190,7 @@ namespace OpenFin.FDC3
         /// Adds a listener for incoming context broadcast from the Desktop Agent.
         /// </summary>
         /// <param name="handler">The handler to invoke when </param>
-        public  void AddContextHandler(Action<ContextBase> handler)
+        public void AddContextHandler(Action<ContextBase> handler)
         {
             ContextHandlers += handler;            
         }

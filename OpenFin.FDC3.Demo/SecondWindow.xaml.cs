@@ -2,60 +2,46 @@
 using OpenFin.FDC3.Context;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 
 namespace OpenFin.FDC3.Demo
 {
     /// <summary>
-    /// Interaction logic for Window2.xaml
+    /// Interaction logic for SecondWindow.xaml
     /// </summary>
     public partial class SecondWindow : Window
     {
         private bool contextChanging = false;
-        Connection connection;
+        private Connection connection;
 
         public SecondWindow()
         {
             InitializeComponent();
-            this.Loaded += SecondWindow_Loaded;
-        }
-
-        private void SecondWindow_Loaded(object sender, RoutedEventArgs e)
-        {
-            initialize();
+            this.Loaded += (object sender, RoutedEventArgs e) => initialize();
         }
 
         private async void initialize()
         {
             connection = await ConnectionManager.CreateConnectionAsync("secondWindow");
-            var channels = await connection.GetDesktopChannelsAsync();
-
             connection.AddContextHandler(ContextChanged);
 
-            await  Dispatcher.InvokeAsync(async () =>
+            await Dispatcher.InvokeAsync(async () =>
             {
                 tbAppId.Text = FDC3.Uuid;
 
+                var channels = await connection.GetSystemChannelsAsync();
                 foreach (var channel in channels)
                 {
-                    if (channel.ChannelType == ChannelType.Desktop)
+                    if (channel.ChannelType == ChannelType.System)
                     {
-                        ChannelListComboBox.Items.Add(new ComboBoxItem() { Content = channel.Name, Tag = channel });
+                        ChannelListComboBox.Items.Add(new ComboBoxItem() { Content = channel.VisualIdentity.Name, Tag = channel });
                     }
                 }
 
-                ChannelListComboBox.SelectedValue = "Global";
-            });                       
+                ChannelListComboBox.SelectedValue = "Default";
+            });
         }
 
         private void ContextChanged(ContextBase obj)
@@ -63,7 +49,7 @@ namespace OpenFin.FDC3.Demo
             Dispatcher.Invoke(() =>
             {
                 contextChanging = true;
-                TickerComboBox.SelectedValue = obj.Name;
+                TickerComboBox.SelectedValue = obj.Id["ticker"];
                 contextChanging = false;
             });
         }
@@ -73,12 +59,13 @@ namespace OpenFin.FDC3.Demo
             if (!contextChanging)
             {
                 var newTicker = TickerComboBox.SelectedValue as string;
-                var context = new SecurityContext()
+                var context = new InstrumentContext()
                 {
                     Name = newTicker,
                     Id = new Dictionary<string, string>()
                     {
-                        { "default", newTicker }
+                        { "default", newTicker },
+                        { "ticker", newTicker }
                     }
                 };
 
@@ -94,16 +81,17 @@ namespace OpenFin.FDC3.Demo
             }
         }
 
-        DesktopChannel newChannel;
-
         private async void ChannelListComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            newChannel = (ChannelListComboBox.SelectedItem as ComboBoxItem).Tag as DesktopChannel;
+            SystemChannel newChannel = (ChannelListComboBox.SelectedItem as ComboBoxItem).Tag as SystemChannel;
 
+            // 'Color' can technically be any CSS colour string
+            // For now, we assume that it'll always be in "#000000" format
+            int color = Int32.Parse(newChannel.VisualIdentity.Color.Substring(1), System.Globalization.NumberStyles.HexNumber);
             var newColor = Color.FromRgb(
-                (byte)(newChannel.Color >> 16),
-                (byte)((newChannel.Color >> 8) & 0xFF),
-                (byte)(newChannel.Color & 0xFF));
+                (byte)((color >> 16) & 0xFF),
+                (byte)((color >> 8) & 0xFF),
+                (byte)(color & 0xFF));
 
             Dispatcher.Invoke(() =>
             {

@@ -4,14 +4,16 @@
   "startup_app": {
     "name": "FDC3-Service",
     "description": "OpenFin FDC3 Desktop Service",
-    "url": "https://cdn.openfin.co/services/openfin/fdc3/0.2.0/provider.html",
+    "url": "http://localhost:3923/provider/provider.html",
     "uuid": "fdc3-service",
-    "autoShow": false,
+    "autoShow": true,
     "defaultHeight": 400,
     "defaultWidth": 500
   },
   "runtime": {
-    "arguments": "--inspect",
-    "version": "beta"
+    "version": "13.76.44.21"
+  },
+  "serviceConfiguration": {
+    "applicationDirectory": "http://localhost:3923/provider/sample-app-directory.json"
   }
 }

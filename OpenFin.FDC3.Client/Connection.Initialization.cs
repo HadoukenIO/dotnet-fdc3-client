@@ -12,9 +12,10 @@ using System.Threading.Tasks;
 
 namespace OpenFin.FDC3
 {
-    public partial class Connection
+    public partial class Connection 
     {
         public string WindowNameAlias { get; }
+
         private ChannelClient channelClient;
 
         Action<ContextBase> ContextHandlers;
@@ -31,6 +32,11 @@ namespace OpenFin.FDC3
             registerChannelTopics();
 
             return channelClient.ConnectAsync();
+        }
+
+        public Task DisconnectAsync()
+        {
+            return channelClient.DisconnectAsync();
         }
 
         private void registerChannelTopics()
@@ -70,6 +76,6 @@ namespace OpenFin.FDC3
             {
                 ContextHandlers?.Invoke(payload.Context);
             });
-        }       
+        }     
     }
 }

@@ -15,7 +15,7 @@ namespace OpenFin.FDC3.Demo
     {
         private bool contextChanging = false;
         private Connection connection;
-        SecondWindow win2 = new SecondWindow();
+        //SecondWindow win2 = new SecondWindow();
 
         public MainWindow()
         {
@@ -23,10 +23,13 @@ namespace OpenFin.FDC3.Demo
 
             FDC3.InitializationComplete = initialize;
 #if DEBUG
+            //FDC3.Initialize("C:\\Projects\\OpenFin\\dotnet-fdc3-client\\OpenFin.FDC3.Demo\\bin\\Debug\\app.json");
             FDC3.Initialize($"{System.IO.Directory.GetCurrentDirectory()}\\app.json");
 #else
             FDC3.Initialize();
 #endif
+            this.Closed += async (s, e) => await connection.DisconnectAsync();
+
         }
 
         private async void initialize()
@@ -147,6 +150,7 @@ namespace OpenFin.FDC3.Demo
 
         private void BtnLaunch_Click(object sender, RoutedEventArgs e)
         {
+            var win2 = new SecondWindow();
             win2.Show();
         }
     }

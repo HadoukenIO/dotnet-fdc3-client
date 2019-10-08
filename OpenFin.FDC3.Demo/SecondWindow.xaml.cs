@@ -20,6 +20,7 @@ namespace OpenFin.FDC3.Demo
         {
             InitializeComponent();
             this.Loaded += (object sender, RoutedEventArgs e) => initialize();
+            this.Closed += async (s, e) => await connection.DisconnectAsync();
         }
 
         private async void initialize()

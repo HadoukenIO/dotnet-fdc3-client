@@ -1,19 +1,10 @@
-﻿using System;
+﻿using OpenFin.FDC3.Channels;
+using OpenFin.FDC3.Context;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using OpenFin.FDC3.Context;
-using FDC3 = OpenFin.FDC3;
 
 namespace OpenFin.FDC3.Demo
 {
@@ -22,31 +13,45 @@ namespace OpenFin.FDC3.Demo
     /// </summary>
     public partial class MainWindow : Window
     {
-        bool contextChanging = false;
+        private bool contextChanging = false;
+        private Connection connection;
+        //SecondWindow win2 = new SecondWindow();
 
         public MainWindow()
         {
             InitializeComponent();
 
-            FDC3.DesktopAgent.InitializationComplete = DesktopAgent_Initialized;
-            FDC3.DesktopAgent.Initialize();
+            FDC3.InitializationComplete = initialize;
+#if DEBUG            
+            FDC3.Initialize($"{System.IO.Directory.GetCurrentDirectory()}\\app.json");
+#else
+            FDC3.Initialize($"{System.IO.Directory.GetCurrentDirectory()}\\app.release.json");
+#endif
+            this.Closed += async (s, e) => await connection.DisconnectAsync();
         }
 
-        private async void DesktopAgent_Initialized(Exception ex)
+        private async void initialize()
         {
-            var channels = await FDC3.ContextChannels.Instance.GetAllChannelsAsync();
+            connection = await ConnectionManager.CreateConnectionAsync("mainwin");
+            connection.AddContextHandler(ContextChanged);
 
-            Dispatcher.Invoke(() =>
+            await Dispatcher.InvokeAsync(async () =>
             {
+                tbAppId.Text = FDC3.Uuid;
+
+                var channels = await connection.GetSystemChannelsAsync();
+                ChannelBase defaultChannel = await connection.GetChannelByIdAsync("default");
+                ChannelListComboBox.Items.Add(new ComboBoxItem() { Content = "Default", Tag = defaultChannel });
                 foreach (var channel in channels)
                 {
-                    ChannelListComboBox.Items.Add(new ComboBoxItem() { Content = channel.Name, Tag = channel });
+                    if (channel.ChannelType == ChannelType.System)
+                    {
+                        ChannelListComboBox.Items.Add(new ComboBoxItem() { Content = channel.VisualIdentity.Name, Tag = channel });
+                    }
                 }
 
-                ChannelListComboBox.SelectedValue = "Global";
+                ChannelListComboBox.SelectedValue = "Default";
             });
-
-            FDC3.DesktopAgent.AddContextListener(ContextChanged);
         }
 
         private void ContextChanged(ContextBase obj)
@@ -54,44 +59,77 @@ namespace OpenFin.FDC3.Demo
             Dispatcher.Invoke(() =>
             {
                 contextChanging = true;
-                TickerComboBox.SelectedValue = obj.Name;
+                if (obj.Id.ContainsKey("ticker"))
+                {
+                    TickerComboBox.SelectedValue = obj.Id["ticker"];
+                }
+                else
+                {
+                    TickerComboBox.SelectedValue = obj.Name;
+                }
                 contextChanging = false;
             });
         }
 
         private async void TickerComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if(!contextChanging)
+            if (!contextChanging)
             {
                 var newTicker = TickerComboBox.SelectedValue as string;
-                var context = new SecurityContext()
+                var context = new InstrumentContext()
                 {
                     Name = newTicker,
                     Id = new Dictionary<string, string>()
                     {
-                        { "default", newTicker }
+                        { "default", newTicker },
+                        { "ticker", newTicker }
                     }
                 };
 
                 try
                 {
-                    await FDC3.DesktopAgent.Broadcast(context);
+
+                    await connection.BroadcastAsync(context);
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine(ex);
+                    MessageBox.Show(ex.ToString());
                 }
             }
         }
 
         private async void ChannelListComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            var newChannel = (ChannelListComboBox.SelectedItem as ComboBoxItem).Tag as Channels.Channel;
+            ChannelBase newChannel = (ChannelListComboBox.SelectedItem as ComboBoxItem).Tag as ChannelBase;
 
-            var newColor = Color.FromRgb(
-                (byte) (newChannel.Color >> 16),
-                (byte) ((newChannel.Color >> 8) & 0xFF),
-                (byte) (newChannel.Color & 0xFF));
+            Color newColor;
+            if (newChannel is SystemChannel)
+            {
+                DisplayMetadata metadata = (newChannel as SystemChannel).VisualIdentity;
+
+                // 'Color' can technically be any CSS colour string
+                // For now, we assume that it'll always be in "#000000" format
+                int color = Int32.Parse(metadata.Color.Substring(1), System.Globalization.NumberStyles.HexNumber);
+                newColor = Color.FromRgb(
+                    (byte)((color >> 16) & 0xFF),
+                    (byte)((color >> 8) & 0xFF),
+                    (byte)(color & 0xFF));
+            }
+            else if (newChannel is DefaultChannel)
+            {
+                // Use white for default channel
+                newColor = Color.FromRgb(255, 255, 255);
+            }
+            else if (newChannel != null)
+            {
+                // A new channel type has been added to the service
+                Console.WriteLine($"Unexpected channel type {newChannel.ChannelType}");
+                newColor = Color.FromRgb(0, 0, 0);
+            }
+            else
+            {
+                return;
+            }
 
             Dispatcher.Invoke(() =>
             {
@@ -100,12 +138,18 @@ namespace OpenFin.FDC3.Demo
 
             try
             {
-                await FDC3.ContextChannels.Instance.JoinChannelAsync(newChannel.Id);
+                await newChannel.JoinAsync();
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                Console.WriteLine(ex);
+                MessageBox.Show(ex.ToString());
             }
+        }
+
+        private void BtnLaunch_Click(object sender, RoutedEventArgs e)
+        {
+            var win2 = new SecondWindow();
+            win2.Show();
         }
     }
 }

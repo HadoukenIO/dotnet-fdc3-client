@@ -47,15 +47,21 @@
     <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.12.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
-    <Reference Include="OpenfinDesktop, Version=9.0.1.5, Culture=neutral, PublicKeyToken=18a277d64dddd680, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\lj-dotnet-adapter\OpenfinDesktop\bin\Debug\OpenfinDesktop.dll</HintPath>
+    <Reference Include="Openfin.WinForm, Version=10.0.0.2, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Openfin.WinForm.10.0.0-alpha02\lib\net452\Openfin.WinForm.dll</HintPath>
+    </Reference>
+    <Reference Include="OpenFin.WPF, Version=10.0.0.2, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\OpenFin.WPF.10.0.0-alpha02\lib\net452\OpenFin.WPF.dll</HintPath>
+    </Reference>
+    <Reference Include="OpenfinDesktop, Version=10.0.0.2, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\OpenfinDesktop.10.0.0-alpha02\lib\net452\OpenfinDesktop.dll</HintPath>
     </Reference>
     <Reference Include="SuperSocket.ClientEngine, Version=0.10.0.0, Culture=neutral, PublicKeyToken=ee9af13f57f00acc, processorArchitecture=MSIL">
       <HintPath>..\packages\SuperSocket.ClientEngine.Core.0.10.0\lib\net45\SuperSocket.ClientEngine.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.IO.Compression" />
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -66,30 +72,31 @@
     <Reference Include="WebSocket4Net, Version=0.15.2.11, Culture=neutral, PublicKeyToken=eb4e154b696bf72a, processorArchitecture=MSIL">
       <HintPath>..\packages\WebSocket4Net.0.15.2\lib\net45\WebSocket4Net.dll</HintPath>
     </Reference>
+    <Reference Include="WindowsFormsIntegration" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Channels\ChannelBase.cs" />
-    <Compile Include="Channels\TransportType.cs" />
+    <Compile Include="Channels\DisplayMetadata.cs" />
     <Compile Include="Connection.Initialization.cs" />
-    <Compile Include="Constants\ChannelTransportTypes.cs" />
+    <Compile Include="ConnectionManager.cs" />
     <Compile Include="Constants\FDC3EventTypes.cs" />
     <Compile Include="Events\ChannelChangedEvent.cs" />
     <Compile Include="Channels\ChannelContextListener.cs" />
     <Compile Include="Channels\ChannelTransport.cs" />
     <Compile Include="Channels\ContextListener.cs" />
     <Compile Include="Channels\DefaultChannel.cs" />
-    <Compile Include="Channels\DesktopChannel.cs" />
-    <Compile Include="Channels\DesktopChannelTransport.cs" />
+    <Compile Include="Channels\SystemChannel.cs" />
+    <Compile Include="Channels\SystemChannelTransport.cs" />
     <Compile Include="Channels\Identity.cs" />
     <Compile Include="Events\ChannelWindowAddedEvent.cs" />
     <Compile Include="Events\EventRouter.cs" />
+    <Compile Include="Events\EventTargetConverter.cs" />
     <Compile Include="Events\EventTransport.cs" />
     <Compile Include="Events\EventTransportTarget.cs" />
     <Compile Include="Events\FDC3EventTypes.cs" />
     <Compile Include="Events\IFDC3Event.cs" />
     <Compile Include="Constants\ApiToClientTopic.cs" />
     <Compile Include="Constants\ChannelConstants.cs" />
-    <Compile Include="ContextChannels.cs" />
     <Compile Include="Events\ChannelWindowRemovedEvent.cs" />
     <Compile Include="Exceptions\OpenFinInitializationException.cs" />
     <Compile Include="Extensions\AckExtensions.cs" />
@@ -100,7 +107,6 @@
     <Compile Include="Payloads\ChannelAddEventListenerPayload.cs" />
     <Compile Include="Payloads\ChannelChangedPayload.cs" />
     <Compile Include="Constants\ApiFromClientTopic.cs" />
-    <Compile Include="Channels\Channel.cs" />
     <Compile Include="Channels\ChannelTypes.cs" />
     <Compile Include="Context\Contact.cs" />
     <Compile Include="Context\OrganizationContext.cs" />
@@ -114,7 +120,7 @@
     <Compile Include="Errors\ResolveError.cs" />
     <Compile Include="Context\ContactContext.cs" />
     <Compile Include="Context\ContextBase.cs" />
-    <Compile Include="Context\SecurityContext.cs" />
+    <Compile Include="Context\InstrumentContext.cs" />
     <Compile Include="DesktopAgent.cs" />
     <Compile Include="Constants\IntentConstants.cs" />
     <Compile Include="Intents\IntentMetadata.cs" />
@@ -129,14 +135,15 @@
     <Compile Include="Payloads\OpenPayload.cs" />
     <Compile Include="Payloads\PayloadBase.cs" />
     <Compile Include="Payloads\RaiseIntentPayload.cs" />
+    <Compile Include="Payloads\ReceiveContextPayload.cs" />
+    <Compile Include="Payloads\ReceiveIntentPayload.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utils\ChannelUtils.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
-    <None Include="app.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
+    <None Include="app.json" />
+    <None Include="openfin.fdc.nuspec" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>

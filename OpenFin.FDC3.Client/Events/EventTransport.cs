@@ -1,4 +1,6 @@
-﻿using OpenFin.FDC3.Channels;
+﻿using System;
+using Newtonsoft.Json;
+using OpenFin.FDC3.Channels;
 using OpenFin.FDC3.Utils;
 
 namespace OpenFin.FDC3.Events
@@ -9,13 +11,12 @@ namespace OpenFin.FDC3.Events
         public Identity Identity { get; set; }
         public ChannelTransport Channel { get; set; }
         public ChannelTransport PreviousChannel { get; set; }
+        [JsonConverter(typeof(EventTargetConverter))]
         public EventTransportTarget Target { get; set; }
-        public FDC3Event ToEvent()
+        public FDC3Event ToEvent(Connection connection)
         {
-
-            var channel = ChannelUtils.GetChannelObject(this.Channel);
-            var previousChannel = ChannelUtils.GetChannelObject(PreviousChannel);
-           
+            var channel = ChannelUtils.GetChannelObject(this.Channel, connection);
+            var previousChannel = ChannelUtils.GetChannelObject(PreviousChannel, connection);
 
             switch (Type)
             {

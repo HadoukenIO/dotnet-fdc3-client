@@ -3,6 +3,5 @@
     internal class ChannelConstants
     {
         internal static string DefaultChannelId = "default";
-        internal static string DesktopChannelId = "desktop";
     }
 }

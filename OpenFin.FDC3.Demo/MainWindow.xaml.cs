@@ -22,14 +22,12 @@ namespace OpenFin.FDC3.Demo
             InitializeComponent();
 
             FDC3.InitializationComplete = initialize;
-#if DEBUG
-            //FDC3.Initialize("C:\\Projects\\OpenFin\\dotnet-fdc3-client\\OpenFin.FDC3.Demo\\bin\\Debug\\app.json");
+#if DEBUG            
             FDC3.Initialize($"{System.IO.Directory.GetCurrentDirectory()}\\app.json");
 #else
-            FDC3.Initialize();
+            FDC3.Initialize($"{System.IO.Directory.GetCurrentDirectory()}\\app.release.json");
 #endif
             this.Closed += async (s, e) => await connection.DisconnectAsync();
-
         }
 
         private async void initialize()

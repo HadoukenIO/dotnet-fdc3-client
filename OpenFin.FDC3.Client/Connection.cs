@@ -92,6 +92,10 @@ namespace OpenFin.FDC3
             return channelClient.DispatchAsync<ContextBase>(ApiFromClientTopic.ChannelGetCurrentContext, new { id = channelId });
         }
 
+        /// <summary>
+        /// Gets all system channels.
+        /// </summary>
+        /// <returns></returns>
         public async Task<IEnumerable<SystemChannel>> GetSystemChannelsAsync()
         {
             var transports = await channelClient.DispatchAsync<List<SystemChannelTransport>>(ApiFromClientTopic.GetSystemChannels, JValue.CreateUndefined());
@@ -192,6 +196,11 @@ namespace OpenFin.FDC3
         /// <param name="handler">The handler to invoke when </param>
         public void AddContextHandler(Action<ContextBase> handler)
         {
+            if(ContextHandlers != null)
+            {
+                channelClient.DispatchAsync(ApiFromClientTopic.AddContextListener, JValue.CreateUndefined());
+            }
+
             ContextHandlers += handler;            
         }
 
@@ -201,7 +210,12 @@ namespace OpenFin.FDC3
         /// <param name="handler">Handler to be removed</param>
         internal void RemoveContextHandler(Action<ContextBase> handler)
         {
-            FDC3Handlers.ContextHandlers -= handler;
+            ContextHandlers -= handler;
+
+            if(ContextHandlers == null)
+            {
+                channelClient.DispatchAsync(ApiFromClientTopic.RemoveContextListener, JValue.CreateUndefined());
+            }
         }
     }
 }

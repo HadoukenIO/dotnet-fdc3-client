@@ -15,13 +15,12 @@ namespace OpenFin.FDC3.Demo
     {
         private bool contextChanging = false;
         private Connection connection;
-        //SecondWindow win2 = new SecondWindow();
 
         public MainWindow()
         {
             InitializeComponent();
 
-            FDC3.InitializationComplete = initialize;
+            FDC3.OnInitialized += initialized;
 #if DEBUG            
             FDC3.Initialize($"{System.IO.Directory.GetCurrentDirectory()}\\app.json");
 #else
@@ -30,7 +29,7 @@ namespace OpenFin.FDC3.Demo
             this.Closed += async (s, e) => await connection.DisconnectAsync();
         }
 
-        private async void initialize()
+        private async void initialized()
         {
             connection = await ConnectionManager.CreateConnectionAsync("mainwin");
             connection.AddContextHandler(ContextChanged);
@@ -38,6 +37,7 @@ namespace OpenFin.FDC3.Demo
             await Dispatcher.InvokeAsync(async () =>
             {
                 tbAppId.Text = FDC3.Uuid;
+                btnLaunch.IsEnabled = true;
 
                 var channels = await connection.GetSystemChannelsAsync();
                 ChannelBase defaultChannel = await connection.GetChannelByIdAsync("default");
@@ -88,7 +88,6 @@ namespace OpenFin.FDC3.Demo
 
                 try
                 {
-
                     await connection.BroadcastAsync(context);
                 }
                 catch (Exception ex)
@@ -148,7 +147,7 @@ namespace OpenFin.FDC3.Demo
 
         private void BtnLaunch_Click(object sender, RoutedEventArgs e)
         {
-            var win2 = new SecondWindow();
+            var win2 = new NewWindow();
             win2.Show();
         }
     }

@@ -11,12 +11,12 @@ namespace OpenFin.FDC3.Demo
     /// <summary>
     /// Interaction logic for SecondWindow.xaml
     /// </summary>
-    public partial class SecondWindow : Window
+    public partial class NewWindow : Window
     {
         private bool contextChanging = false;
         private Connection connection;
 
-        public SecondWindow()
+        public NewWindow()
         {
             InitializeComponent();
             this.Loaded += (object sender, RoutedEventArgs e) => initialize();
@@ -25,7 +25,9 @@ namespace OpenFin.FDC3.Demo
 
         private async void initialize()
         {
-            connection = await ConnectionManager.CreateConnectionAsync("secondWindow");
+            var connectionID = Guid.NewGuid().ToString();
+            this.Title = $"ConnectionID : {connectionID}";
+            connection = await ConnectionManager.CreateConnectionAsync(connectionID);
             connection.AddContextHandler(ContextChanged);
 
             await Dispatcher.InvokeAsync(async () =>

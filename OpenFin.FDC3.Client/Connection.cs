@@ -98,16 +98,18 @@ namespace OpenFin.FDC3
         /// <returns></returns>
         public async Task<IEnumerable<SystemChannel>> GetSystemChannelsAsync()
         {
-            var transports = await channelClient.DispatchAsync<List<SystemChannelTransport>>(ApiFromClientTopic.GetSystemChannels, JValue.CreateUndefined());
-            var channels = new List<SystemChannel>();
-
-            foreach (var transport in transports)
+            try
             {
-                var channel = ChannelUtils.GetChannelObject(transport, this) as SystemChannel;
-                channels.Add(channel);
-            }
+                var transports = await channelClient.DispatchAsync<List<SystemChannelTransport>>(ApiFromClientTopic.GetSystemChannels, JValue.CreateUndefined());
+                var channels = new List<SystemChannel>();
+                transports.ForEach(transport => channels.Add(ChannelUtils.GetChannelObject(transport, this) as SystemChannel));                
 
-            return channels;
+                return channels;
+            }
+            catch(Exception ex)
+            {
+                throw ex;
+            }
         }
 
         internal  Task JoinChannelAsync(string channelId, Identity identity = null)

@@ -19,7 +19,7 @@ namespace OpenFin.FDC3.Demo
         public MainWindow()
         {
             InitializeComponent();
-
+            AppDomain.CurrentDomain.UnhandledException += (s, e) => { MessageBox.Show(e.ExceptionObject.ToString()); };
             FDC3.OnInitialized += initialized;
 #if DEBUG            
             FDC3.Initialize($"{System.IO.Directory.GetCurrentDirectory()}\\app.json");
@@ -39,19 +39,28 @@ namespace OpenFin.FDC3.Demo
                 tbAppId.Text = FDC3.Uuid;
                 btnLaunch.IsEnabled = true;
 
-                var channels = await connection.GetSystemChannelsAsync();
-                ChannelBase defaultChannel = await connection.GetChannelByIdAsync("default");
-                ChannelListComboBox.Items.Add(new ComboBoxItem() { Content = "Default", Tag = defaultChannel });
-                foreach (var channel in channels)
+                try
                 {
-                    if (channel.ChannelType == ChannelType.System)
-                    {
-                        ChannelListComboBox.Items.Add(new ComboBoxItem() { Content = channel.VisualIdentity.Name, Tag = channel });
-                    }
-                }
 
-                ChannelListComboBox.SelectedValue = "Default";
+                    var channels = await connection.GetSystemChannelsAsync();
+                    ChannelBase defaultChannel = await connection.GetChannelByIdAsync("default");
+                    ChannelListComboBox.Items.Add(new ComboBoxItem() { Content = "Default", Tag = defaultChannel });
+                    foreach (var channel in channels)
+                    {
+                        if (channel.ChannelType == ChannelType.System)
+                        {
+                            ChannelListComboBox.Items.Add(new ComboBoxItem() { Content = channel.VisualIdentity.Name, Tag = channel });
+                        }
+                    }
+
+                    ChannelListComboBox.SelectedValue = "Default";
+                }
+                catch(Exception ex)
+                {
+                    MessageBox.Show(ex.ToString());
+                }
             });
+
         }
 
         private void ContextChanged(ContextBase obj)

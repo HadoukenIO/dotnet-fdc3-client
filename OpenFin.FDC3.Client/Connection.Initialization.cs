@@ -13,21 +13,21 @@ using System.Threading.Tasks;
 namespace OpenFin.FDC3
 {
     public partial class Connection 
-    {
-        public string WindowNameAlias { get; }
+    {       
+        private string connectionAlias { get; }
 
         private ChannelClient channelClient;
 
         Action<ContextBase> ContextHandlers;
 
-        internal Connection(string windowNameAlias = "")
-        {
-            WindowNameAlias = windowNameAlias;            
+        internal Connection(string alias)
+        {         
+            connectionAlias = alias;            
         }
 
         internal Task Initialize(Runtime runtimeInstance)
         {
-            channelClient = runtimeInstance.InterApplicationBus.Channel.CreateClient(Fdc3ServiceConstants.ServiceChannel, WindowNameAlias);
+            channelClient = runtimeInstance.InterApplicationBus.Channel.CreateClient(Fdc3ServiceConstants.ServiceChannel, connectionAlias);
 
             registerChannelTopics();
 

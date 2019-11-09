@@ -30,7 +30,7 @@
             <ComboBoxItem>ROKU</ComboBoxItem>
             <ComboBoxItem>TSLA</ComboBoxItem>
         </ComboBox>
-        <Button Margin="0,10,0,0" x:Name="btnLaunch" Click="BtnLaunch_Click">Launch Window 2</Button>
+        <Button Margin="0,10,0,0" x:Name="btnLaunch" Click="BtnLaunch_Click" IsEnabled="False">Launch Window</Button>
         <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
             <TextBlock>App ID: </TextBlock>
             <TextBlock x:Name="tbAppId">Pending...</TextBlock>

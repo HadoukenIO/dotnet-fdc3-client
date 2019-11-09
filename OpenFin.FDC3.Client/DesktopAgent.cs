@@ -20,7 +20,7 @@ namespace OpenFin.FDC3
         public static string Uuid => runtimeInstance?.Options?.UUID;      
 
         /// <summary>
-        /// Initialize client with the default Manifest URL
+        /// Initialize client with the default manifest URL
         /// </summary>
         public static void Initialize()
         {

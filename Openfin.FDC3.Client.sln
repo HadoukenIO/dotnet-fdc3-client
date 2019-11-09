@@ -14,6 +14,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		gitversion.yaml = gitversion.yaml
 	EndProjectSection
 EndProject
+Project("{7CF6DF6D-3B04-46F8-A40B-537D21BCA0B4}") = "OpenFin.FDC3.Docs", "OpenFin.FDC3.Docs\OpenFin.FDC3.Docs.shfbproj", "{B71EB244-2CE9-4FB9-BF10-65EADB0A802B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,12 @@ Global
 		{4A8BFDFB-1762-476D-A7ED-CBEF8CBFA97B}.Release|Any CPU.Build.0 = Release|Any CPU
 		{4A8BFDFB-1762-476D-A7ED-CBEF8CBFA97B}.Staging|Any CPU.ActiveCfg = Staging|Any CPU
 		{4A8BFDFB-1762-476D-A7ED-CBEF8CBFA97B}.Staging|Any CPU.Build.0 = Staging|Any CPU
+		{B71EB244-2CE9-4FB9-BF10-65EADB0A802B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B71EB244-2CE9-4FB9-BF10-65EADB0A802B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B71EB244-2CE9-4FB9-BF10-65EADB0A802B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B71EB244-2CE9-4FB9-BF10-65EADB0A802B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B71EB244-2CE9-4FB9-BF10-65EADB0A802B}.Staging|Any CPU.ActiveCfg = Release|Any CPU
+		{B71EB244-2CE9-4FB9-BF10-65EADB0A802B}.Staging|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

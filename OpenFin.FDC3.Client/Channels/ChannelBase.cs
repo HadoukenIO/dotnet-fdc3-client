@@ -55,11 +55,23 @@ namespace OpenFin.FDC3.Channels
             return connection.JoinChannelAsync(this.ChannelId, identity);
         }
 
+        /// <summary>
+        /// Broadcasts the given context on this channel.
+        /// Note that this function ca be used without first joining the channel, allowing applciations to broadcast on channels they are not members.
+        /// This broadcast will be receied by all windows that are members of this channel, except for the window that makes the broadcast.
+        /// </summary>
+        /// <param name="context"></param>
+        /// <returns></returns>
         public Task BroadcastAsync(ContextBase context)
         {
             return connection.ChannelBroadcastAsync(this.ChannelId, context);
         }
 
+        /// <summary>
+        /// Adds the event that is fired when a window broadcasts on this channel
+        /// </summary>
+        /// <param name="listener"></param>
+        /// <returns></returns>
         public Task AddContextListenerAsync(Action<ContextBase> listener)
         {
             var channelContextListener = new ChannelContextListener
@@ -78,15 +90,25 @@ namespace OpenFin.FDC3.Channels
                 return new TaskCompletionSource<object>(null).Task;
         }
 
+        /// <summary>
+        /// Removes the event fired when a window
+        /// </summary>
+        /// <param name="listener"></param>
         public void RemoveContextListener(ChannelContextListener listener)
         {
             FDC3Handlers.ChannelContextHandlers.RemoveAll(x => x.Channel.ChannelId == listener.Channel.ChannelId);
             connection.RemoveChannelContextListenerAsync(listener);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="eventType"></param>
+        /// <param name="eventHandler"></param>
+        /// <returns></returns>
         public Task AddEventListenerAsync(FDC3EventType eventType, Action<FDC3Event> eventHandler)
         {
-            var hasAny = FDC3Handlers.HasEventListener(this.ChannelId);            
+            var hasAny = FDC3Handlers.HasEventListener(this.ChannelId);
             FDC3Handlers.FDC3ChannelEventHandlers[this.ChannelId].Add(eventType, eventHandler);
 
             if (!hasAny)
@@ -100,14 +122,14 @@ namespace OpenFin.FDC3.Channels
             FDC3Handlers.FDC3ChannelEventHandlers[this.ChannelId][eventType] -= eventHandler;
             FDC3Handlers.FDC3ChannelEventHandlers[this.ChannelId].Remove(eventType);
 
-            //if (FDC3Handlers.FDC3EventHandlers[this.ChannelId][eventType])
-            //{
-            //    return Connection.RemoveFDC3EventListenerAsync(this.ChannelId, eventType);
-            //}
-            //else
-            //{
-            //    return new TaskCompletionSource<object>().Task;
-            //}
+            if (FDC3Handlers.FDC3ChannelEventHandlers[this.ChannelId][eventType] == null)
+            {
+                return connection.RemoveFDC3EventListenerAsync(this.ChannelId, eventType);
+            }
+            else
+            {
+                return new TaskCompletionSource<object>().Task;
+            }
 
             return null;
         }

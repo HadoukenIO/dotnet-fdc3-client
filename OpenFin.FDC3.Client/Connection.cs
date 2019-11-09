@@ -122,6 +122,11 @@ namespace OpenFin.FDC3
             return channelClient.DispatchAsync<Task>(ApiFromClientTopic.ChannelJoin, new { id = channelId, identity = identity });
         }
 
+        internal Task RemoveFDC3EventListenerAsync(string channelId, FDC3EventType eventType)
+        {
+            return channelClient.DispatchAsync<Task>(ApiFromClientTopic.ChannelRemoveEventListener, new { id = channelId, eventType });
+        }
+
         /// <summary>
         /// Launches/links to an application by name
         /// </summary>

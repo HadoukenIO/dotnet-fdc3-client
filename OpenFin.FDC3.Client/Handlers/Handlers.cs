@@ -7,7 +7,7 @@ using System.Linq;
 
 namespace OpenFin.FDC3.Handlers
 {
-    internal sealed class FDC3Handlers
+    internal class FDC3Handlers
     {
         internal static Action<ChannelChangedPayload> ChannelChangedHandlers;
         internal static Action<ContextBase> ContextHandlers;

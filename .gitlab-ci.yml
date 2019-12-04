@@ -1,0 +1,3 @@
+include:
+  - project: "openfin/devops/ci"
+    file: "/dotnet-dotnet-fdc3-client.yml"

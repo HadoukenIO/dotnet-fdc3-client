@@ -14,9 +14,8 @@ namespace OpenFin.FDC3
         /// Fires when initialization has completed successfully.
         /// Must be set before calling Initialize().
         /// </summary>
-        public static Action OnInitialized;
-
-        
+        public static Action OnInitialized;      
+                
         public static string Uuid => runtimeInstance?.Options?.UUID;      
 
         /// <summary>
@@ -67,8 +66,14 @@ namespace OpenFin.FDC3
                     }
 
                     ConnectionManager.RuntimeInstance = runtimeInstance;
-                    isInitialized = true;
-                    OnInitialized.Invoke();
+
+                    runtimeInstance.System.getRuntimeInfo(info =>
+                    {
+                        ConnectionManager.RuntimeInfo = info;
+
+                        isInitialized = true;
+                        OnInitialized.Invoke();
+                    });                   
                 });
             });
         }

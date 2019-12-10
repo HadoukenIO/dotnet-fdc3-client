@@ -1,15 +1,20 @@
-﻿{
-  "devtools_port": 9090,
-  "licenseKey": "64605fac-add3-48a0-8710-64b38e96a2dd",
-  "startup_app": {
-    "name": "OpenfinPOC",
-    "description": "OpenFin POC",
-    "url": "https://example.com",
-    "uuid": "OpenfinPOC-1tkcgzqv475",
-    "autoShow": true,
-    "fdc3Api": true
-  },
-  "runtime": {
-    "version": "14.78.47.15"
-  }
+{
+    "devtools_port": 9090,
+    "startup_app": {
+        "name": "OpenfinPOC",
+        "description": "OpenFin POC",
+        "url": "https://google.com",
+        "uuid": "OpenfinPOC-54powcnm4wc",
+        "autoShow": true,
+        "fdc3Api": true
+    },
+    "runtime": {
+        "arguments": "",
+        "version": "14.78.47.15"
+    },
+    "shortcut": {
+        "company": "OpenFin",
+        "description": "Openfin POC",
+        "name": "Openfin POC"
+    }
 }

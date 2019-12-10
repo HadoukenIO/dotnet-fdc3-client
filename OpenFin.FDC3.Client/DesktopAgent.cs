@@ -2,6 +2,8 @@
 using OpenFin.FDC3.Constants;
 using OpenFin.FDC3.Exceptions;
 using System;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace OpenFin.FDC3
 {
@@ -50,6 +52,7 @@ namespace OpenFin.FDC3
             completeInitialization(runtimeOptions);
         }
 
+
         private static void completeInitialization(RuntimeOptions runtimeOptions)
         {
             runtimeInstance = Runtime.GetRuntimeInstance(runtimeOptions);
@@ -57,6 +60,7 @@ namespace OpenFin.FDC3
             runtimeInstance.Connect(() =>
             {
                 var fdcService = runtimeInstance.CreateApplication(runtimeOptions.StartupApplicationOptions);
+
 
                 fdcService.isRunning(ack =>
                 {

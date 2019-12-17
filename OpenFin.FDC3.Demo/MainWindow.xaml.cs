@@ -22,7 +22,7 @@ namespace OpenFin.FDC3.Demo
             AppDomain.CurrentDomain.UnhandledException += (s, e) => { MessageBox.Show(e.ExceptionObject.ToString()); };
             FDC3.OnInitialized += initialized;
 #if DEBUG            
-            FDC3.Initialize($"{System.IO.Directory.GetCurrentDirectory()}\\app.json");
+            FDC3.Initialize($"{System.IO.Directory.GetCurrentDirectory()}\\app.fdc3.json");
 #else
             FDC3.Initialize($"{System.IO.Directory.GetCurrentDirectory()}\\app.release.json");
 #endif
@@ -32,6 +32,7 @@ namespace OpenFin.FDC3.Demo
         private async void initialized()
         {
             connection = await ConnectionManager.CreateConnectionAsync("mainwin");
+            
             connection.AddContextHandler(ContextChanged);
 
             await Dispatcher.InvokeAsync(async () =>
@@ -41,7 +42,6 @@ namespace OpenFin.FDC3.Demo
 
                 try
                 {
-
                     var channels = await connection.GetSystemChannelsAsync();
                     ChannelBase defaultChannel = await connection.GetChannelByIdAsync("default");
                     ChannelListComboBox.Items.Add(new ComboBoxItem() { Content = "Default", Tag = defaultChannel });

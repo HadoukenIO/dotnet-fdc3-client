@@ -1,0 +1,20 @@
+{
+    "devtools_port": 9090,
+    "startup_app": {
+        "name": "OpenfinPOC",
+        "description": "OpenFin POC",
+        "url": "https://google.com",
+        "uuid": "OpenfinPOC-54powcnm4wc",
+        "autoShow": true,
+        "fdc3Api": true
+    },
+    "runtime": {
+        "arguments": "",
+        "version": "14.78.47.15"
+    },
+    "shortcut": {
+        "company": "OpenFin",
+        "description": "Openfin POC",
+        "name": "Openfin POC"
+    }
+}

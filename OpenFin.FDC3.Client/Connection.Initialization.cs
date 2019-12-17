@@ -25,9 +25,17 @@ namespace OpenFin.FDC3
             connectionAlias = alias;            
         }
 
-        internal Task Initialize(Runtime runtimeInstance)
+        internal Task InitializeAsync()
         {
-            channelClient = runtimeInstance.InterApplicationBus.Channel.CreateClient(Fdc3ServiceConstants.ServiceChannel, connectionAlias);
+
+            if (!string.IsNullOrEmpty(ConnectionManager.RuntimeInfo.FDC3ChannelName))
+            {
+                channelClient = ConnectionManager.RuntimeInstance.InterApplicationBus.Channel.CreateClient(ConnectionManager.RuntimeInfo.FDC3ChannelName, connectionAlias);
+            }
+            else
+            {                
+                channelClient = ConnectionManager.RuntimeInstance.InterApplicationBus.Channel.CreateClient(Fdc3ServiceConstants.ServiceChannel, connectionAlias);
+            }
 
             registerChannelTopics();
 

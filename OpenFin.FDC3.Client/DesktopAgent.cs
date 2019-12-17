@@ -2,6 +2,8 @@
 using OpenFin.FDC3.Constants;
 using OpenFin.FDC3.Exceptions;
 using System;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace OpenFin.FDC3
 {
@@ -14,9 +16,8 @@ namespace OpenFin.FDC3
         /// Fires when initialization has completed successfully.
         /// Must be set before calling Initialize().
         /// </summary>
-        public static Action OnInitialized;
-
-        
+        public static Action OnInitialized;      
+                
         public static string Uuid => runtimeInstance?.Options?.UUID;      
 
         /// <summary>
@@ -51,6 +52,7 @@ namespace OpenFin.FDC3
             completeInitialization(runtimeOptions);
         }
 
+
         private static void completeInitialization(RuntimeOptions runtimeOptions)
         {
             runtimeInstance = Runtime.GetRuntimeInstance(runtimeOptions);
@@ -58,6 +60,7 @@ namespace OpenFin.FDC3
             runtimeInstance.Connect(() =>
             {
                 var fdcService = runtimeInstance.CreateApplication(runtimeOptions.StartupApplicationOptions);
+
 
                 fdcService.isRunning(ack =>
                 {
@@ -67,8 +70,14 @@ namespace OpenFin.FDC3
                     }
 
                     ConnectionManager.RuntimeInstance = runtimeInstance;
-                    isInitialized = true;
-                    OnInitialized.Invoke();
+
+                    runtimeInstance.System.getRuntimeInfo(info =>
+                    {
+                        ConnectionManager.RuntimeInfo = info;
+
+                        isInitialized = true;
+                        OnInitialized.Invoke();
+                    });                   
                 });
             });
         }

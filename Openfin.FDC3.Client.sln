@@ -12,6 +12,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{B10CD417-E54A-4205-A4C9-3CBEA99EF2DD}"
 	ProjectSection(SolutionItems) = preProject
 		gitversion.yaml = gitversion.yaml
+		release-notes.md = release-notes.md
 	EndProjectSection
 EndProject
 Project("{7CF6DF6D-3B04-46F8-A40B-537D21BCA0B4}") = "OpenFin.FDC3.Docs", "OpenFin.FDC3.Docs\OpenFin.FDC3.Docs.shfbproj", "{B71EB244-2CE9-4FB9-BF10-65EADB0A802B}"

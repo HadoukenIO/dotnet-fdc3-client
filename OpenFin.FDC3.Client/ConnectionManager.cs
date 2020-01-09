@@ -1,4 +1,5 @@
 ﻿using Openfin.Desktop;
+using Openfin.Desktop.Api.Models.System;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,6 +12,7 @@ namespace OpenFin.FDC3
     {
         internal static Runtime RuntimeInstance { get; set; }
         internal static List<string> connectionAliases = new List<string>();
+        internal static RuntimeInfo RuntimeInfo { get; set; }
 
         /// <summary>
         /// Creates a connected 
@@ -26,7 +28,7 @@ namespace OpenFin.FDC3
                 throw new ArgumentNullException("connectionAlias", "A connection with this alias has already been established");
 
             var connection = new Connection(connectionAlias);
-            await connection.Initialize(RuntimeInstance);
+            await connection.InitializeAsync();
 
             return connection;
         }      

@@ -203,7 +203,7 @@ namespace OpenFin.FDC3
         /// <param name="handler">The handler to invoke when </param>
         public void AddContextHandler(Action<ContextBase> handler)
         {
-            if(ContextHandlers != null)
+            if(ContextHandlers == null)
             {
                 channelClient.DispatchAsync(ApiFromClientTopic.AddContextListener, JValue.CreateUndefined());
             }
